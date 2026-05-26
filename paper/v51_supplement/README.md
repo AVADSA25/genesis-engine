@@ -116,14 +116,49 @@ still tightening**, not after they have fully consolidated.
 
 ---
 
+## D) Damköhler / "Clock Speed-Limit" test  (v5.2 addition)
+
+Motivated by Gemini Deep Think's **second** review (May 2026), which
+asked whether the framework implicitly requires Da = T_div / τ_pattern
+> 1: even a perfectly regular Clock can prevent Map formation if
+its absolute period is shorter than the pattern-consolidation time.
+
+Tested against the existing 3-level LIPID_SUPPLY ablation
+(0.008 / 0.015 / 0.025, n=100 runs × 50,000 ticks each):
+
+| lipid supply | T_div | τ_pattern | **Da** | final S | Phase-D % |
+|---|---|---|---|---|---|
+| 0.008 (low)  | 5,101 | 130 |  **99.6** | 0.823 | 90% |
+| 0.015 (base) | 3,172 |  79 |  59.0 | 0.752 | 80% |
+| 0.025 (high) | 2,102 | 151 |  **31.5** | **0.644** | **79%** |
+
+- Mann–Whitney U on final S (one-sided, low > high): **p = 1.34 × 10⁻²⁴**
+- Per-run Spearman ρ(T_div, final_S): **+0.428, p = 8.91 × 10⁻¹⁵**
+- Phase-D rate Δ(low − high) = +11 pp, 95% bootstrap CI [+1, +21]
+
+**Verdict:** the Damköhler signature Gemini predicted is empirically
+present in all three direction-of-effect tests. The framework's
+headline ordering survives at Da ≫ 1, but pays measurable quality
+costs as Da decreases. Da → 1 cliff is the target of v6 stress runs.
+A 2nd falsification criterion now added to Prediction 4: a population
+with low CV but Tdiv ≪ τ_pattern should fail to reach Phase C —
+the "too fast to organize" regime.
+
+Full details: `damkohler_speed_limit.md`, `fig_damkohler.png`.
+
+---
+
 ## Summary one-liner for the paper
 
-> *Re-analysis of the existing Monte Carlo data shows the Clock→Map
-> delay is 25 s – 2 min under typical lipid kinetics, the Map latches
-> in a tight 20–60-cell window with division CV ≈ 0.16–0.18, and the
-> Clock continues to tighten in the long run on a 1D substrate but
-> exhibits a small, robustly-anchored 2D-only back-reaction (mean
-> Δcv = +0.057, sign-test p = 0.025; permutation null p < 1/2000;
-> survives both phc-shuffle and fixed-tick controls) — a partial
-> confirmation of Gemini Deep Think's retroactive-interference
-> hypothesis that motivates a fully coupled Map↔Clock v6 model.*
+> *Re-analyses of the existing Monte Carlo and ablation data show
+> (i) the Clock→Map delay corresponds to ~25 s – 2 min under typical
+> lipid kinetics, (ii) the Map latches in a tight 20–60-cell window
+> with division CV ≈ 0.16–0.18, (iii) the Clock continues to tighten
+> in the long run on a 1D substrate but exhibits a small, robustly-
+> anchored 2D-only back-reaction (Δcv = +0.057, permutation null
+> p < 1/2000), and (iv) tripling the lipid supply rate shortens the
+> cell-cycle period 2.4× and degrades pattern stability 22%
+> (Mann-Whitney p = 1.3 × 10⁻²⁴) and Engine survival 11 pp —
+> a partial confirmation of two distinct Gemini Deep Think
+> hypotheses (Map↔Clock back-reaction and Damköhler speed-limit)
+> that motivates a fully coupled v6 model.*
