@@ -70,10 +70,27 @@ assumption is **conservative in 1D and very slightly violated in 2D**
 within the model's existing dynamics — even though the Map only
 acts on Engine in code.
 
-**Caveat.** The 2D late window is near end-of-run because the 2D
-simulations are 10 000-tick. A dedicated long-run 2D Monte Carlo
-(50 000 ticks, planned for v6) is needed to confirm the trend
-extrapolates.
+**Robustness controls (`backreaction_2D_shuffle_control.md`).**
+We worried that the 2D Δcv = +0.057 could be a generic
+"later-in-run population-age drift" rather than a true Phase-C
+back-reaction. Two formal controls rule this out:
+
+| Control | Description | Result |
+|---|---|---|
+| Fixed-tick anchor (T5) | Same absolute-tick windows for every run, ignoring per-run phc | Δcv = **−0.007** (effect vanishes) |
+| Permutation null  (N=2000) | Each run's phc replaced by another run's phc | Null mean = −0.107 ± 0.013; **0 / 2000 shuffles produced Δcv ≥ +0.057**; permutation p < 1/2000 |
+
+Both confirm the effect is anchored to each run's actual Phase-C
+event — not to absolute simulation time and not to a generic drift.
+The pre-latch sanity check (anchor = phc − 3000) gives Δcv = −0.79
+across all 184 eligible runs, as expected for the active Clock-
+tightening regime.
+
+**Remaining caveat.** The 2D simulations are only 10 000 ticks, so
+we cannot test "even-deeper-post-latch" anchors (phc + 2000 leaves
+only n=1 eligible run). A dedicated long-run 2D Monte Carlo
+(50 000 ticks, planned for v6) would confirm the trend extrapolates
+beyond end-of-run.
 
 (See `fig_backreaction_clean_1D.png`, `fig_backreaction_clean_2D.png`
 and `backreaction_clean_*.csv`.)
@@ -105,7 +122,8 @@ still tightening**, not after they have fully consolidated.
 > delay is 25 s – 2 min under typical lipid kinetics, the Map latches
 > in a tight 20–60-cell window with division CV ≈ 0.16–0.18, and the
 > Clock continues to tighten in the long run on a 1D substrate but
-> exhibits a small, significant 2D-only back-reaction (mean Δcv =
-> +0.057, p = 0.025) — a partial confirmation of Gemini Deep Think's
-> retroactive-interference hypothesis that motivates a fully coupled
-> Map↔Clock v6 model.*
+> exhibits a small, robustly-anchored 2D-only back-reaction (mean
+> Δcv = +0.057, sign-test p = 0.025; permutation null p < 1/2000;
+> survives both phc-shuffle and fixed-tick controls) — a partial
+> confirmation of Gemini Deep Think's retroactive-interference
+> hypothesis that motivates a fully coupled Map↔Clock v6 model.*
