@@ -276,6 +276,27 @@ body {
   color: var(--fg-muted);
   text-align: center;
 }
+.footer-credit {
+  margin-top: 8px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: #4a5876;
+  font-weight: 300;
+  opacity: 0.85;
+}
+.footer-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(95, 113, 146, 0.35);
+  text-underline-offset: 2px;
+  transition: color 120ms ease;
+}
+.footer-credit a:hover,
+.footer-credit a:focus {
+  color: #8a9dc0;
+  text-decoration-color: currentColor;
+  outline: none;
+}
 
 /* responsive */
 @media (max-width: 1200px) {
