@@ -1,0 +1,5 @@
+geom,seed,sample_interval,max_ticks,gated_B,gated_C,gated_D,gated_delay,gated_clock_first,ungated_B,ungated_C,cosat,ungated_delay,ungated_clock_first,final_phase,final_pop,final_mean_s,final_mean_cv,total_divisions,elapsed_s
+2d,0,1,10000,5482,5483,-1,1,True,5482,360,5482,-5122,False,C,43,0.5546,0.1003,142,1009.4
+2d,1,1,10000,4597,4598,6356,1,True,4597,1292,4597,-3305,False,D,35,0.8164,0.18,144,1001.4
+2d,2,1,10000,4077,4078,6146,1,True,4077,1335,4077,-2742,False,D,34,0.9863,0.2672,135,962.5
+2d,3,1,10000,5263,5264,6994,1,True,5263,360,5263,-4903,False,D,42,0.6867,0.1478,136,1035.0
