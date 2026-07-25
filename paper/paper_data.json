@@ -44,23 +44,62 @@
       "mean": 242.94605809128632,
       "median": 50.0,
       "std": 2318.770471651458,
-      "unit": "ticks"
+      "unit": "ticks",
+      "iqr": [
+        50.0,
+        50.0
+      ],
+      "min": 50.0,
+      "max": 38400.0,
+      "sampling_interval_ticks": 50,
+      "n_at_sampling_floor": 434,
+      "pct_at_sampling_floor": 90.0,
+      "outlier_seeds_carrying_mean": [
+        {
+          "seed": 171,
+          "delay": 38400,
+          "pct_of_total_delay_mass": 32.8
+        },
+        {
+          "seed": 294,
+          "delay": 32000,
+          "pct_of_total_delay_mass": 27.3
+        },
+        {
+          "seed": 361,
+          "delay": 10450,
+          "pct_of_total_delay_mass": 8.9
+        }
+      ],
+      "pct_mass_in_top3": 69.0,
+      "mean_excluding_top3": 75.7,
+      "v6_caveat": "Median equals the 50-tick sampling interval and the IQR has zero width. The mean is carried by 3 of 482 runs (69.0% of total delay mass). detect_phase() latches C only if B latched at a strictly earlier tick, so delay >= one sampling interval by construction; at 1-tick sampling the gated delay collapses to exactly 1 tick. Do not cite the mean as evidence of a physical gap."
     },
     "statistical_tests": {
       "binomial": {
-        "p_value": 8.008332380732404e-146
+        "p_value": 8.008332380732404e-146,
+        "v6_caveat": "Null (p=0.5 random ordering) is unreachable: detect_phase() cannot emit C at or before B, so 482/482 was the only possible outcome. p-value carries no evidence."
       },
       "wilcoxon": {
         "W_statistic": 116403.0,
-        "p_value": 1.6618223317149778e-98
+        "p_value": 1.6618223317149778e-98,
+        "v6_caveat": "Null (median delay <= 0) is unreachable for the same reason; every delay is >= 50 by construction. Additionally 434/482 (90.0%) of inputs are tied at exactly 50, leaving 12 distinct levels, so the normal approximation is inappropriate."
       },
       "hedges_g": {
         "g": 9.412431760525706,
         "n_organized": 482,
-        "n_disorganized": 18
+        "n_disorganized": 18,
+        "dependent_variable": "final_pop",
+        "grouping_variable": "final_mean_s",
+        "group_definitions": {
+          "organized": "final_mean_s > 0.3",
+          "disorganized": "final_mean_s < 0.1"
+        },
+        "circularity_warning": "S multiplies uptake, efficiency and maintenance directly (UPT_BONUS=0.12, EFF_BONUS=0.70, MAINT_BONUS=0.35), so it causally determines final_pop. Grouping on S and measuring final_pop largely measures those chosen constants, not a discovered effect. Groups are also severely imbalanced (482 vs 18)."
       }
     },
-    "manuscript_sentence": "In N = 500 independent simulations of an evolving protocell population, the division-regularity phase (Clock) preceded the pattern-stability phase (Map) in 482 of 482 runs where both phase transitions occurred (100 %; binomial test p = 8.01 \u00d7 10\u207b\u00b9\u2074\u2076). The mean Clock \u2192 Map delay was 243 \u00b1 2319 ticks (Wilcoxon signed-rank W = 116 403, p = 1.66 \u00d7 10\u207b\u2079\u2078). Populations that achieved stable patterns (S > 0.3, N = 482) outperformed disorganized populations (S < 0.1, N = 18) with Hedges' g = 9.41."
+    "manuscript_sentence": "In N = 500 independent simulations of an evolving protocell population, the division-regularity phase (Clock) preceded the pattern-stability phase (Map) in 482 of 482 runs where both phase transitions occurred (100 %; binomial test p = 8.01 \u00d7 10\u207b\u00b9\u2074\u2076). The mean Clock \u2192 Map delay was 243 \u00b1 2319 ticks (Wilcoxon signed-rank W = 116 403, p = 1.66 \u00d7 10\u207b\u2079\u2078). Populations that achieved stable patterns (S > 0.3, N = 482) outperformed disorganized populations (S < 0.1, N = 18) with Hedges' g = 9.41.",
+    "manuscript_sentence_v6_status": "SUPERSEDED - see paper/v6_supplement/task4_statistics.md for the corrected sentence. The original reports a mean without its median, and p-values against unreachable nulls."
   },
   "ablations": {
     "source": "results/ablations/ablation_summary.csv",

@@ -144,6 +144,22 @@ def main():
     print(f"THERMODYNAMIC SELECTION (Engine)")
     print(f"{'='*70}")
 
+    # DEPENDENT VARIABLE: final_pop (final population count).
+    # GROUPING VARIABLE:  final_mean_s (pattern stability S).
+    #
+    # CIRCULARITY WARNING (v6 audit). S is not independent of final_pop.
+    # In genesis_engine.py the same S that defines these groups multiplies
+    # three fitness terms directly:
+    #     uptake = E_UPTAKE     * (1 + UPT_BONUS   * S) * resource_frac
+    #     eff    = E_EFFICIENCY * (1 + EFF_BONUS   * S)
+    #     maint  = E_MAINTENANCE* (1 - MAINT_BONUS * S)
+    # High S raises uptake and efficiency and lowers maintenance -> raises
+    # energy -> lowers death rate -> raises final_pop. The resulting effect
+    # size therefore largely measures the magnitudes of EFF_BONUS (0.70),
+    # MAINT_BONUS (0.35) and UPT_BONUS (0.12) -- constants chosen by the
+    # modeller -- rather than a discovered thermodynamic effect.
+    # Groups are also severely imbalanced (n=482 vs n=18).
+    # Do not report g without naming the DV and this caveat.
     organized = [r["final_pop"] for r in data if r["final_mean_s"] > 0.3]
     disorganized = [r["final_pop"] for r in data if r["final_mean_s"] < 0.1]
 
