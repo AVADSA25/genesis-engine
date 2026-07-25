@@ -477,6 +477,17 @@ class SimResult:
     ts_ticks: list = field(default_factory=list)
     clock_before_map: Optional[bool] = None
 
+    # ── Ungated predicate first-crossings (v6 instrumentation) ──────────
+    # detect_phase() latches C only if B latched at a STRICTLY EARLIER
+    # tick, which makes Clock-before-Map true by construction and pins
+    # the minimum observable delay to one sample interval. The fields
+    # below record when each predicate INDEPENDENTLY first becomes true,
+    # with no sequential gate, so the ordering can be tested not assumed.
+    ungated_B_tick: int = -1     # first tick with 0 < mean_cv < PHASE_B_CV
+    ungated_C_tick: int = -1     # first tick with mean_s > PHASE_C_S
+    cosat_tick: int = -1         # first tick where BOTH hold simultaneously
+    ungated_clock_before_map: Optional[bool] = None
+
 
 # ─────────────────────────── run_simulation (2D) ─────────────────────────
 def run_simulation(seed: int, max_ticks: int = 40000, verbose: bool = False,
@@ -496,6 +507,7 @@ def run_simulation(seed: int, max_ticks: int = 40000, verbose: bool = False,
         "RESOURCE_REGEN", "MAX_RESOURCE",
         "PHASE_B_CV", "PHASE_C_S", "PHASE_D_S", "PHASE_D_CV", "PHASE_D_GEN",
         "MUTATION_RATE",
+        "SAMPLE_INTERVAL",
     }
     _saved: dict = {}
     if overrides:
@@ -616,6 +628,18 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
                         cvs.append(times.std() / m)
             mean_cv = float(np.mean(cvs)) if cvs else 1.0
 
+            # ── Ungated predicate first-crossings (v6) ──────────────────
+            # Same state as detect_phase below, no sequential gate, so
+            # neither predicate can be suppressed by the other.
+            cv_ok = 0 < mean_cv < PHASE_B_CV
+            s_ok = mean_s > PHASE_C_S
+            if cv_ok and result.ungated_B_tick < 0:
+                result.ungated_B_tick = tick
+            if s_ok and result.ungated_C_tick < 0:
+                result.ungated_C_tick = tick
+            if cv_ok and s_ok and result.cosat_tick < 0:
+                result.cosat_tick = tick
+
             phase = detect_phase(mean_s, mean_cv, max_gen, phases, tick)
 
             result.ts_ticks.append(tick)
@@ -649,6 +673,17 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
         result.clock_before_map = True
     else:
         result.clock_before_map = None
+
+    # Ungated ordering: both predicates measured independently. Unlike
+    # clock_before_map above, this CAN come out False -- it is a test.
+    if result.ungated_B_tick > 0 and result.ungated_C_tick > 0:
+        if result.ungated_B_tick != result.ungated_C_tick:
+            result.ungated_clock_before_map = (
+                result.ungated_B_tick < result.ungated_C_tick)
+        else:
+            result.ungated_clock_before_map = None  # exact tie
+    else:
+        result.ungated_clock_before_map = None
     return result
 
 
