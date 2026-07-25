@@ -82,3 +82,34 @@ Corrected:
 - All figures recomputed from `results/summary.csv` and `results_2d/summary.csv`; no re-simulation.
 - 'On the floor' = delay <= the 50-tick sampling interval.
 - Circularity judged by tracing whether the grouping variable appears in the causal chain producing the dependent variable.
+
+---
+
+## 4e. Denominator inflation (found by the v6 audit, verified independently)
+
+The headline "1,845 runs" pools three studies: 482 (1D main) + 1,165
+(ablation grid) + 198 (2D). The ablation grid sweeps four parameters at
+three levels each, and in each sweep one level IS the baseline value.
+Those four baseline conditions are therefore the same configuration.
+
+Verified from `results/ablations/ablation_summary.csv` — all four
+baseline rows are identical to the last decimal place:
+
+| parameter | value | mean_B_tick | mean_C_tick | mean_final_S | mean_pop |
+|---|---|---|---|---|---|
+| LIPID_SUPPLY | 0.015 | 4416.0 | 4518.556701030928 | 0.7521093934 | 37.89 |
+| RD_NOISE | 0.004 | 4416.0 | 4518.556701030928 | 0.7521093934 | 37.89 |
+| GROWTH_PERTURB | 0.15 | 4416.0 | 4518.556701030928 | 0.7521093934 | 37.89 |
+| STAB_WINDOW | 40 | 4416.0 | 4518.556701030928 | 0.7521093934 | 37.89 |
+
+Distinct statistical signatures among the four: **1**.
+
+- Ablation runs counted: 1,165 → **874 distinct**
+- Duplicate-counted: **291**
+- Headline denominator 1,845 → **1,554 distinct runs**
+
+The ablation grid also reuses seeds 0–99 in every condition, so even the
+non-baseline conditions are not independent of one another; they are the
+same 100 initial states re-run under different parameters. Any pooled
+test treating the 1,845 as independent Bernoulli trials is invalid on
+this ground alone, before the unreachable-null problem is considered.
