@@ -260,6 +260,15 @@ class SimResult:
     ts_pop: list = field(default_factory=list)
     ts_mean_s: list = field(default_factory=list)
     ts_mean_cv: list = field(default_factory=list)
+    # Fixed-window CV estimator (v6 Task 2b). The production mean_cv uses
+    # every interval a cell has accumulated (>=3, capped at 12), so the
+    # number of samples behind each CV grows over a run. numpy .std()
+    # defaults to ddof=0, which is biased LOW at small n, so a growing n
+    # inflates the CV estimate over time for purely statistical reasons.
+    # This estimator instead uses exactly the last N_CV_FIXED intervals
+    # from cells that have at least that many, holding n constant so any
+    # remaining drift is dynamical rather than an artifact of the estimator.
+    ts_mean_cv_fix: list = field(default_factory=list)
     ts_resource: list = field(default_factory=list)
     ts_ticks: list = field(default_factory=list)
     # Was B before C? (the key hypothesis)
@@ -281,6 +290,8 @@ class SimResult:
     ungated_clock_before_map: Optional[bool] = None
 
 
+N_CV_FIXED = 5           # v6 Task 2b: fixed sample size for the
+                        # drift-free CV estimator
 SAMPLE_INTERVAL = 50
 
 
@@ -302,7 +313,7 @@ def run_simulation(seed: int, max_ticks: int = 80000, verbose: bool = False,
         "RESOURCE_REGEN", "MAX_RESOURCE",
         "PHASE_B_CV", "PHASE_C_S", "PHASE_D_S", "PHASE_D_CV", "PHASE_D_GEN",
         "MUTATION_RATE",
-        "SAMPLE_INTERVAL",
+        "SAMPLE_INTERVAL", "N_CV_FIXED",
     }
     _saved = {}
     if overrides:
@@ -435,6 +446,17 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
                         cvs.append(times.std() / m)
             mean_cv = np.mean(cvs) if cvs else 1.0
 
+            # Fixed-n CV estimator (v6 Task 2b): exactly the last
+            # N_CV_FIXED intervals, so sample size cannot drift.
+            cvs_fix = []
+            for c in cells:
+                if len(c.division_times) >= N_CV_FIXED:
+                    tf = np.array(c.division_times[-N_CV_FIXED:])
+                    mf = tf.mean()
+                    if mf > 0:
+                        cvs_fix.append(tf.std() / mf)
+            mean_cv_fix = float(np.mean(cvs_fix)) if cvs_fix else 1.0
+
             # ── Ungated predicate first-crossings (v6) ──────────────────
             # Evaluated on the SAME state as detect_phase below, but with
             # no sequential gate, so neither predicate can be suppressed
@@ -454,6 +476,7 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
             result.ts_pop.append(len(cells))
             result.ts_mean_s.append(mean_s)
             result.ts_mean_cv.append(mean_cv)
+            result.ts_mean_cv_fix.append(mean_cv_fix)
             result.ts_resource.append(resource)
 
             if verbose and tick % 5000 == 0:

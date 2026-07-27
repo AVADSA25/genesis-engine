@@ -156,6 +156,8 @@ PHASE_D_S   = 0.35
 PHASE_D_CV  = 0.30
 PHASE_D_GEN = 5
 
+N_CV_FIXED = 5           # v6 Task 2b: fixed sample size for the
+                        # drift-free CV estimator
 SAMPLE_INTERVAL = 50
 
 
@@ -475,6 +477,8 @@ class SimResult:
     ts_mean_cv: list = field(default_factory=list)
     ts_resource: list = field(default_factory=list)
     ts_ticks: list = field(default_factory=list)
+    # Fixed-n CV estimator (v6 Task 2b) -- see genesis_engine.py for rationale.
+    ts_mean_cv_fix: list = field(default_factory=list)
     clock_before_map: Optional[bool] = None
 
     # ── Ungated predicate first-crossings (v6 instrumentation) ──────────
@@ -507,7 +511,7 @@ def run_simulation(seed: int, max_ticks: int = 40000, verbose: bool = False,
         "RESOURCE_REGEN", "MAX_RESOURCE",
         "PHASE_B_CV", "PHASE_C_S", "PHASE_D_S", "PHASE_D_CV", "PHASE_D_GEN",
         "MUTATION_RATE",
-        "SAMPLE_INTERVAL",
+        "SAMPLE_INTERVAL", "N_CV_FIXED",
     }
     _saved: dict = {}
     if overrides:
@@ -628,6 +632,17 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
                         cvs.append(times.std() / m)
             mean_cv = float(np.mean(cvs)) if cvs else 1.0
 
+            # Fixed-n CV estimator (v6 Task 2b): exactly the last
+            # N_CV_FIXED intervals, so sample size cannot drift.
+            cvs_fix = []
+            for c in cells:
+                if len(c.division_times) >= N_CV_FIXED:
+                    tf = np.array(c.division_times[-N_CV_FIXED:])
+                    mf = tf.mean()
+                    if mf > 0:
+                        cvs_fix.append(tf.std() / mf)
+            mean_cv_fix = float(np.mean(cvs_fix)) if cvs_fix else 1.0
+
             # ── Ungated predicate first-crossings (v6) ──────────────────
             # Same state as detect_phase below, no sequential gate, so
             # neither predicate can be suppressed by the other.
@@ -646,6 +661,7 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
             result.ts_pop.append(len(cells))
             result.ts_mean_s.append(mean_s)
             result.ts_mean_cv.append(mean_cv)
+            result.ts_mean_cv_fix.append(mean_cv_fix)
             result.ts_resource.append(resource)
 
             if verbose and tick % 1000 == 0:
