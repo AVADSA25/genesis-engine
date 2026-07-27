@@ -93,6 +93,7 @@ class Cell:
     pattern_s: float = 0.0
     snapshots: list = field(default_factory=list)
     stab_tick: int = 0
+    next_div_interval: float = -1.0   # v6 Task 3, forced-division mode
 
     @staticmethod
     def create(rng: np.random.Generator, genome: Optional[Genome] = None) -> "Cell":
@@ -107,6 +108,20 @@ class Cell:
             radius=MIN_RADIUS + rng.uniform(0, 2),
             energy=rng.uniform(1, 3),
         )
+
+
+def draw_div_interval(rng: np.random.Generator) -> float:
+    """Draw a division interval with mean FORCE_T_MEAN and CV FORCE_CV.
+
+    Gamma(shape=1/cv^2, scale=T*cv^2): mean = T, CV = cv exactly.
+    cv -> 0 collapses to the deterministic interval T.
+    cv  = 1 is exponential (Poissonian division).
+    """
+    if FORCE_CV <= 1e-9:
+        return float(FORCE_T_MEAN)
+    shape = 1.0 / (FORCE_CV ** 2)
+    scale = FORCE_T_MEAN * (FORCE_CV ** 2)
+    return float(max(1.0, rng.gamma(shape, scale)))
 
 
 def rd_step(cell: Cell, rng: np.random.Generator):
@@ -288,7 +303,21 @@ class SimResult:
     # Ordering as measured by the ungated predicates (None if either
     # never crossed). True = CV crossed strictly first, False = S first.
     ungated_clock_before_map: Optional[bool] = None
+    # v6 Task 3: reduced volume at each forced division (physicality log)
+    rv_at_division: list = field(default_factory=list)
 
+
+# ── v6 Task 3: externally imposed division timing ──────────────────
+# When FORCE_DIVISION is True the geometric (Adder) trigger is bypassed
+# and each cell divides after an interval drawn from a Gamma with the
+# TARGET mean and CV below. Gamma(shape=1/cv^2, scale=T*cv^2) has mean T
+# and coefficient of variation cv exactly; cv=1 is exponential, i.e. a
+# Poisson process. cv=0 is deterministic. This makes division regularity
+# a CONTROL variable rather than an estimated one, removing both the
+# sequential gate and the CV definedness floor from the ordering test.
+FORCE_DIVISION = False
+FORCE_T_MEAN   = 800.0   # target mean division interval (ticks)
+FORCE_CV       = 0.10    # target coefficient of variation
 
 N_CV_FIXED = 5           # v6 Task 2b: fixed sample size for the
                         # drift-free CV estimator
@@ -314,6 +343,7 @@ def run_simulation(seed: int, max_ticks: int = 80000, verbose: bool = False,
         "PHASE_B_CV", "PHASE_C_S", "PHASE_D_S", "PHASE_D_CV", "PHASE_D_GEN",
         "MUTATION_RATE",
         "SAMPLE_INTERVAL", "N_CV_FIXED",
+        "FORCE_DIVISION", "FORCE_T_MEAN", "FORCE_CV",
     }
     _saved = {}
     if overrides:
@@ -387,10 +417,23 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
             c.energy = np.clip(c.energy + uptake * eff - maint, DEATH_TH - 1, 15)
             resource = max(0.0, resource - uptake * 0.25)
 
-            # Division: pure geometric instability
+            # Division trigger.
             rv = (MIN_RADIUS / c.radius) ** 2
-            crit = CRIT_THRESHOLD_MEAN + rng.normal(0, CRIT_THRESHOLD_NOISE)
-            if rv < crit and len(cells) + len(to_add) < MAX_CELLS:
+            if FORCE_DIVISION:
+                # v6 Task 3: timing imposed externally, independent of size.
+                if c.next_div_interval < 0:
+                    c.next_div_interval = draw_div_interval(rng)
+                due = (c.age - c.last_div_age) >= c.next_div_interval
+                should_divide = due and len(cells) + len(to_add) < MAX_CELLS
+                if should_divide:
+                    # rv at the moment of a forced division: rv >=
+                    # CRIT_THRESHOLD_MEAN means the cell had not grown
+                    # enough to divide geometrically (unphysical split).
+                    result.rv_at_division.append(round(rv, 4))
+            else:
+                crit = CRIT_THRESHOLD_MEAN + rng.normal(0, CRIT_THRESHOLD_NOISE)
+                should_divide = rv < crit and len(cells) + len(to_add) < MAX_CELLS
+            if should_divide:
                 div_interval = c.age - c.last_div_age
                 if c.last_div_age > 0:
                     c.division_times.append(div_interval)
@@ -415,6 +458,9 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
                 c.last_div_age = c.age
                 c.pattern_s *= 0.3
                 c.snapshots = []
+                if FORCE_DIVISION:
+                    c.next_div_interval = draw_div_interval(rng)
+                    daughter.next_div_interval = draw_div_interval(rng)
                 total_div += 1
 
             # Death
