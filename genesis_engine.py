@@ -305,6 +305,17 @@ class SimResult:
     ungated_clock_before_map: Optional[bool] = None
     # v6 Task 3: reduced volume at each forced division (physicality log)
     rv_at_division: list = field(default_factory=list)
+    # v6 Task A1: per-cell (most-recent realized division interval,
+    # pattern_s) captured at the final sample. RETAINED for provenance
+    # but NOT used for the confound test -- see SS_WINDOW_FRAC note.
+    final_cell_pairs: list = field(default_factory=list)
+    # v6 Task A1 (rebuild): per-cell observations sampled ACROSS the
+    # steady-state window, all cells, matching the grid's measure.
+    # Each entry: (tick, last_interval or -1, pattern_s, n_intervals)
+    ss_obs: list = field(default_factory=list)
+    # Per-sample population-mean S over the same window; the time-average
+    # of this list must equal the grid's steady_S exactly.
+    ss_pop_S: list = field(default_factory=list)
 
 
 # ── v6 Task 3: externally imposed division timing ──────────────────
@@ -318,6 +329,19 @@ class SimResult:
 FORCE_DIVISION = False
 FORCE_T_MEAN   = 800.0   # target mean division interval (ticks)
 FORCE_CV       = 0.10    # target coefficient of variation
+
+# v6 Task A1 (rebuild): steady-state observation logging.
+# The grid's steady_S is the TIME-AVERAGE of population-mean S over the
+# last (1 - SS_WINDOW_FRAC) of the run, across ALL cells. A final-tick
+# snapshot is NOT equivalent: at CV=0 every cell divides in lockstep, so
+# at any single tick all cells sit at the same phase of their division
+# cycle, and if that phase is a post-division low-S moment the whole
+# CV=0 group is depressed. That artifact alone produces rho(CV,S)>0 --
+# the same direction as the effect under test. Averaging over the window
+# washes it out, which is why the grid figure is safe and a snapshot is
+# not. These fields reproduce the grid's measure at per-cell resolution.
+SS_WINDOW_FRAC = 0.8     # steady-state window starts at 80% of the run
+SS_OBS_EVERY = 4         # emit per-cell observations every Nth sample
 
 N_CV_FIXED = 5           # v6 Task 2b: fixed sample size for the
                         # drift-free CV estimator
@@ -503,6 +527,17 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
                         cvs_fix.append(tf.std() / mf)
             mean_cv_fix = float(np.mean(cvs_fix)) if cvs_fix else 1.0
 
+            # v6 Task A1 (rebuild): steady-state window logging.
+            if tick >= max_ticks * SS_WINDOW_FRAC:
+                result.ss_pop_S.append(mean_s)
+                if (tick // SAMPLE_INTERVAL) % SS_OBS_EVERY == 0:
+                    for c in cells:
+                        li = (float(c.division_times[-1])
+                              if c.division_times else -1.0)
+                        result.ss_obs.append(
+                            (tick, li, float(c.pattern_s),
+                             len(c.division_times)))
+
             # ── Ungated predicate first-crossings (v6) ──────────────────
             # Evaluated on the SAME state as detect_phase below, but with
             # no sequential gate, so neither predicate can be suppressed
@@ -538,6 +573,15 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
         max(c.generation for c in cells) if cells else 0,
         phases, max_ticks
     )
+    # v6 Task A1: snapshot per-cell realized interval vs own S
+    for c in cells:
+        # Log EVERY surviving cell, including those with too few
+        # divisions to have an interval, so the fraction of
+        # barely-dividing cells is measurable (v6 Task A1 addendum).
+        last_iv = float(c.division_times[-1]) if c.division_times else -1.0
+        result.final_cell_pairs.append(
+            (last_iv, float(c.pattern_s), len(c.division_times)))
+
     result.final_pop = len(cells)
     result.final_mean_s = result.ts_mean_s[-1] if result.ts_mean_s else 0
     result.final_mean_cv = result.ts_mean_cv[-1] if result.ts_mean_cv else 1
