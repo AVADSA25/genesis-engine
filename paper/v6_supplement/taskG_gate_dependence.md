@@ -22,8 +22,31 @@ The confound predicts more post-C time → higher Phase-D success. The
 observed effect is the opposite, so the confound cannot be producing it;
 if anything it was **suppressing** it.
 
-**Verdict: Phase-D success 90% → 79% SURVIVES.** It stays in the
-survivor column.
+### What survives is the DIRECTION, not the rates
+
+The absolute rates (90%, 79%) are gate-conditioned and are **not
+interpretable on their own** — they are counts of a latched state whose
+latch time is set by the CV definedness floor. They must not be quoted
+as success probabilities.
+
+What survives is the **sign of the difference**, and it survives because
+*two independent confounds both predict the opposite sign*:
+
+1. **Post-C time.** High lipid latches C at 2862 vs 7911, leaving
+   +5,049 more ticks (+12.0%) in which to reach D → predicts higher
+   Phase-D at high lipid.
+2. **Generational depth.** Phase D additionally requires
+   `max_gen >= PHASE_D_GEN (5)`. High lipid reaches greater depth
+   (mean_max_gen 4.87 vs 4.74) → also predicts higher Phase-D at high
+   lipid.
+
+Observed: high lipid reaches D **less** often. Both confounds work
+against the observed direction, so neither can be generating it.
+
+**Verdict: the reported rates are withdrawn; the direction of the
+difference (low lipid reaches the Engine state more readily than high
+lipid) survives, and is conservative, because it is measured against two
+confounds pushing the other way.**
 
 The other two lipid-supply results are direct measurements with no gate
 in the path and also stand:
@@ -96,3 +119,24 @@ interpretation withdrawn."
 - Post-C time computed as 50,000 − mean_C_tick from
   `results/ablations/ablation_summary.csv`.
 - All figures recomputed from archived data; no re-simulation.
+
+---
+
+## Part 3 — The §5.3 verdict, stated as a whole
+
+All four results reported in §5.3 are withdrawn or demoted. **§5.3 does
+not survive as physics.**
+
+| §5.3 result | disposition |
+|---|---|
+| Damköhler / speed-limit | **withdrawn** — τ_pattern was the sampling interval |
+| 2D Δ-CV back-reaction | **withdrawn** — does not replicate (p = 0.427) |
+| 1D Δ-CV back-reaction | **demoted** — arithmetic stands (−0.222, p = 1.4e-17); causal reading withdrawn, windows anchored on `phase_C_tick` |
+| Phase-E null | **demoted** — arithmetic stands (+0.147); causal reading withdrawn, groups split on `phase_D_tick` |
+
+Two are withdrawn outright. Two survive as arithmetic with their causal
+readings withdrawn. None supports a physical claim.
+
+This matters because §5.3 was the section added in response to three
+rounds of external adversarial review, and was the part of the paper its
+author was most confident in.
