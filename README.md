@@ -1,5 +1,26 @@
 # Genesis Engine
 
+> ## ⚠️ CORRECTION — 29 July 2026
+>
+> **The headline result below is WITHDRAWN.** The reported Clock→Map
+> ordering was produced by measurement artifacts, not by the dynamics it
+> was attributed to. Eight defects were found in the authors' own
+> re-analysis; each alone is sufficient to produce the 100% figure.
+> Measured without the phase detector, the ordering holds in **≈1%** of
+> runs.
+>
+> The underlying physical hypothesis was then tested directly under
+> imposed division regularity (1,350 runs) and can be **neither
+> confirmed nor refuted** with this design.
+>
+> Full audit, data and analysis scripts: **[`paper/v6_supplement/`](paper/v6_supplement/)**
+> · Correction note: **[`CORRECTION_NOTE_DRAFT.md`](paper/v6_supplement/CORRECTION_NOTE_DRAFT.md)**
+> · Automated checklist that recovers all eight defects: **[`tools/detector_audit.py`](tools/detector_audit.py)**
+>
+> The text below is retained unaltered as the published record.
+
+---
+
 **Sequential Assembly of Biological Agency: Division Regularity Precedes Pattern Stability in Evolving Protocells**
 
 [![SSRN](https://img.shields.io/badge/Preprint-SSRN-blue)](https://papers.ssrn.com)
@@ -19,7 +40,13 @@ order, or whether any ordering suffices. Across **500** independent 1D Monte
 Carlo runs and **200** independent 2D runs on a spherical manifold (642-vertex
 icosphere, cotangent Laplace–Beltrami operator), the Clock phase preceded
 the Map phase in **1,165 of 1,165 runs** where both transitions occurred
-(**100 %**; combined binomial *p* < 10⁻²⁰⁰; Hedges' *g* = 6.34). Twelve
+(**100 %**; combined binomial *p* < 10⁻²⁰⁰; Hedges' *g* = 6.34). ~~Twelve~~
+<!-- WITHDRAWN 2026-07-29: the detector could not emit a violation; the
+     combined p is computed over a denominator that double-counts the
+     shared OAT baseline (1,845 -> 1,554 distinct runs); g = 6.34 is
+     computed on a variable the grouping variable determines, with an
+     n = 2 arm in 2D. See paper/v6_supplement/. -->
+Twelve
 ablation conditions spanning factor-of-2 perturbations of lipid supply,
 reaction-diffusion noise, growth perturbation, and stability window each
 preserved 100 % Clock-before-Map ordering. The ordering is topology- and
@@ -30,11 +57,22 @@ emergence of all capabilities.
 
 ## Key Result
 
-> **Clock always precedes Map. 1,165 / 1,165 = 100 %. Zero violations.**
+> ### ~~Clock always precedes Map. 1,165 / 1,165 = 100 %. Zero violations.~~
 >
-> 1D: *p* = 8.01 × 10⁻¹⁴⁶, Hedges' *g* = 9.41
-> 2D: *p* = 2.49 × 10⁻⁶⁰, Hedges' *g* = 3.27
-> Combined: *p* < 10⁻²⁰⁰, *g* = 6.34
+> **WITHDRAWN 29 July 2026.** Every figure in this box is an artifact.
+>
+> | claimed | status |
+> |---|---|
+> | 1,165 / 1,165 = 100 % | detector latched Map only after Clock — no other outcome was reachable |
+> | *p* = 8.01 × 10⁻¹⁴⁶ (1D), 2.49 × 10⁻⁶⁰ (2D) | tests against an unreachable null |
+> | Combined *p* < 10⁻²⁰⁰ | denominator double-counts the shared OAT baseline: 1,845 → 1,554 distinct runs |
+> | Hedges' *g* = 9.41 / 3.27 / 6.34 | computed on `final_pop`, which the grouping variable causally determines; the 2D arm is **n = 2** |
+>
+> **Corrected figure: Clock precedes Map in ≈1 % of runs** (1.0 % by
+> 1-tick resample N=100; 0.7 % by threshold grid N=150; 0.0 % in 2D
+> across all nine threshold cells).
+>
+> See [`paper/v6_supplement/`](paper/v6_supplement/) for the full audit.
 
 ---
 
