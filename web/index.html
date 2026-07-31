@@ -10,6 +10,17 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="correction-banner" role="alert" style="background:#2b1416;border-bottom:2px solid #c0392b;color:#f2d7d5;padding:14px 20px;font-size:13px;line-height:1.55;font-family:'JetBrains Mono',monospace;">
+  <strong style="color:#ff8a80;letter-spacing:.06em;">&#9888; CORRECTION &mdash; 29 JULY 2026</strong><br>
+  The Monte Carlo results on this page are <strong>WITHDRAWN</strong>. The reported
+  Clock&rarr;Map ordering (100&nbsp;%, 1,845/1,845) was produced by measurement artifacts,
+  not by the dynamics it was attributed to: the phase detector could not emit a violation,
+  and the reported delay equals the sampling interval. Measured without the detector, the
+  ordering holds in <strong>&asymp;1&nbsp;% of runs</strong>. Eight defects are documented.
+  <a href="https://github.com/AVADSA25/genesis-engine/tree/main/paper/v6_supplement"
+     style="color:#ff8a80;text-decoration:underline;">Read the full audit &rarr;</a>
+</div>
+
 
 <header class="topbar">
   <div class="brand">
@@ -239,14 +250,15 @@
     </section>
 
     <section class="kpi-row">
-      <div class="kpi"><div class="kpi-k">BINOMIAL p</div><div class="kpi-v" id="kpi-binom">8.01 × 10⁻¹⁴⁶</div></div>
+      <div class="kpi"><div class="kpi-k">BINOMIAL p</div><div class="kpi-v" id="kpi-binom" style="color:#ff8a80;">WITHDRAWN</div></div>
       <div class="kpi"><div class="kpi-k">WILCOXON p</div><div class="kpi-v" id="kpi-wilcox">1.66 × 10⁻⁹⁸</div></div>
-      <div class="kpi"><div class="kpi-k">MEAN C − B DELAY</div><div class="kpi-v" id="kpi-delay">243 ticks</div></div>
-      <div class="kpi"><div class="kpi-k">HEDGES' g</div><div class="kpi-v" id="kpi-g">9.41</div></div>
+      <div class="kpi"><div class="kpi-k">MEAN C − B DELAY</div><div class="kpi-v" id="kpi-delay" style="color:#ff8a80;font-size:13px;">= sampling interval</div></div>
+      <div class="kpi"><div class="kpi-k">HEDGES' g</div><div class="kpi-v" id="kpi-g" style="color:#ff8a80;font-size:13px;">WITHDRAWN (n=2 in 2D)</div></div>
     </section>
 
     <section class="quote">
-      <blockquote>
+      <div style="background:#2b1416;border-left:3px solid #c0392b;padding:10px 14px;margin:10px 0;color:#f2d7d5;font-size:12px;font-family:'JetBrains Mono',monospace;"><strong style="color:#ff8a80;">WITHDRAWN 29 July 2026.</strong> Every figure below is a measurement artifact. Measured without the phase detector, the ordering holds in ~1% of runs. <a href="https://github.com/AVADSA25/genesis-engine/tree/main/paper/v6_supplement" style="color:#ff8a80;">Full audit &rarr;</a></div>
+<blockquote style="opacity:.45;text-decoration:line-through;">
         In N = 500 independent simulations of an evolving protocell population, the division-regularity phase
         (Clock) preceded the pattern-stability phase (Map) in 482 of 482 runs where both phase transitions
         occurred (100 %; binomial test p = 8.01 × 10⁻¹⁴⁶). The mean Clock → Map delay was 243 ± 2316 ticks
@@ -344,7 +356,8 @@
       <!-- ROW 1 — the claim -->
       <div class="card about-card span-2">
         <div class="card-title">THE CLAIM</div>
-        <p>
+        <div style="background:#2b1416;border-left:3px solid #c0392b;padding:10px 14px;margin:10px 0;color:#f2d7d5;font-size:12px;"><strong style="color:#ff8a80;">WITHDRAWN 29 July 2026.</strong> The figures in this paragraph are measurement artifacts. See the <a href="https://github.com/AVADSA25/genesis-engine/tree/main/paper/v6_supplement" style="color:#ff8a80;">audit</a>.</div>
+<p style="opacity:.45;text-decoration:line-through;">
           We define three sequential observables on an evolving protocell population:
           a <b>Clock</b> (regular division), a <b>Map</b> (spatially stable pattern),
           and <b>Agency</b> (the two persisting jointly across generations). In

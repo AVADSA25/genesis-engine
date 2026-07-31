@@ -1,3 +1,10 @@
+# WITHDRAWN 2026-07-29 - STALE COPY OF WITHDRAWN DATA.
+# This file is a copy of results/summary.csv served by the dashboard.
+# The Clock->Map ordering it encodes (phase_B_tick/phase_C_tick) was
+# produced by a sequential gate in detect_phase() and a CV definedness
+# floor; the C-B delay equals the 50-tick sampling interval.
+# Measured without the detector, the ordering holds in ~1% of runs.
+# Full audit: paper/v6_supplement/
 seed,max_ticks,final_phase,phase_B_tick,phase_C_tick,phase_D_tick,clock_before_map,final_pop,final_mean_s,final_mean_cv,final_max_gen,total_divisions
 0,80000,C,5100,5150,-1,True,39,0.8214,0.0415,3,1227
 1,80000,C,5250,5300,-1,True,37,0.8100,0.0414,3,1206
