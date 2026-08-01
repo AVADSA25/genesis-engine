@@ -532,11 +532,21 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
                 result.ss_pop_S.append(mean_s)
                 if (tick // SAMPLE_INTERVAL) % SS_OBS_EVERY == 0:
                     for c in cells:
-                        li = (float(c.division_times[-1])
-                              if c.division_times else -1.0)
+                        dt = c.division_times
+                        # v6 Task P: interval STATISTICS, not just the last
+                        # interval. The interval-floor hypothesis predicts S
+                        # tracks the MINIMUM uninterrupted interval, so min
+                        # must be logged; n is logged because min is biased
+                        # upward at small n and that confound must be
+                        # separable (see the pre-registration).
+                        li = float(dt[-1]) if dt else -1.0
+                        mn = float(min(dt)) if dt else -1.0
+                        mx = float(max(dt)) if dt else -1.0
+                        av = float(sum(dt) / len(dt)) if dt else -1.0
+                        rv_now = (MIN_RADIUS / c.radius) ** 2
                         result.ss_obs.append(
-                            (tick, li, float(c.pattern_s),
-                             len(c.division_times)))
+                            (tick, li, float(c.pattern_s), len(dt),
+                             mn, mx, av, float(rv_now)))
 
             # ── Ungated predicate first-crossings (v6) ──────────────────
             # Evaluated on the SAME state as detect_phase below, but with
