@@ -30,6 +30,15 @@ CHECKS
   C6  degenerate groups    an effect size where either group has n < 10,
                            or the grouping thresholds leave a gap that
                            contains zero observations
+  C8  pooled-not-stratified  a correlation reported over pooled data
+                           whose sign or magnitude does not survive
+                           stratification by an entanglement variable.
+                           THREE Simpson's paradoxes were found in this
+                           project by hand and none of C1-C7 catches
+                           any of them. In a model of a dividing
+                           population almost every quantity is entangled
+                           with division count, so pooling produces sign
+                           reversals as a matter of course.
   C7  undeclared reference EVERY reported quantity must declare what its
                            reference point is. This is the check that
                            would have caught the most expensive errors
@@ -335,6 +344,89 @@ def check_reference_points(root):
     return out
 
 
+
+# ── C8: pooled statistics that do not survive stratification ──────────
+def check_pooled_not_stratified(root):
+    """Recompute reported correlations both pooled and stratified.
+
+    Three Simpson's paradoxes were found by hand in this project:
+      rho(T_div, S)        +0.43 pooled, -0.60..-0.75 within lipid level
+      the 1,845 denominator  a shared OAT baseline summed across rows
+      rho(min_interval, S) +0.38 pooled, -0.07 within division-count
+
+    None of C1-C7 catches any of them. They share one cause: in a model
+    of a dividing population, nearly every quantity is entangled with
+    how many times a cell has divided. Pooling across that variable
+    reverses signs routinely.
+
+    This check flags any correlation whose sign flips, or whose
+    magnitude drops by more than half, under stratification.
+    """
+    out = []
+    try:
+        from scipy.stats import spearmanr
+    except ImportError:
+        return out
+
+    # (csv glob, x column, y column, stratify-by column, label)
+    specs = [
+        ("taskP_*_obs.csv", "min_interval", "cell_S", "n_intervals",
+         "min-interval vs S"),
+        ("taskA1_obs.csv", "realized_interval", "cell_S", "n_intervals",
+         "realized-interval vs S"),
+    ]
+    for pattern, xc, yc, sc, label in specs:
+        for csvp in sorted((root / "results_v6").glob(pattern)) \
+                if (root / "results_v6").exists() else []:
+            try:
+                rows = list(csv.DictReader(open(csvp)))
+            except OSError:
+                continue
+            if not rows or xc not in rows[0] or sc not in rows[0]:
+                continue
+            def col(c):
+                v = []
+                for r in rows:
+                    try:
+                        v.append(float(r[c]))
+                    except (TypeError, ValueError):
+                        v.append(np.nan)
+                return np.array(v)
+            x, y, st = col(xc), col(yc), col(sc)
+            m = ~(np.isnan(x) | np.isnan(y) | np.isnan(st)) & (x > 0)
+            if m.sum() < 200:
+                continue
+            x, y, st = x[m], y[m], st[m]
+            pooled, _ = spearmanr(x, y)
+            strat = []
+            for lo, hi in ((1, 2), (3, 4), (5, 8), (9, 999)):
+                k = (st >= lo) & (st <= hi)
+                if k.sum() < 50:
+                    continue
+                r_, _ = spearmanr(x[k], y[k])
+                if r_ == r_:
+                    strat.append(r_)
+            if len(strat) < 2:
+                continue
+            mean_strat = float(np.mean(strat))
+            flipped = (pooled * mean_strat) < 0
+            shrunk = abs(mean_strat) < 0.5 * abs(pooled)
+            if flipped or shrunk:
+                out.append(Finding(
+                    "C8 pooled-not-stratified",
+                    "critical" if flipped else "major",
+                    f"{csvp.name}: {label}",
+                    f"pooled rho = {pooled:+.4f}, mean within-stratum rho = "
+                    f"{mean_strat:+.4f} (strata: "
+                    + ", ".join(f"{r_:+.3f}" for r_ in strat) + ")"
+                    + ("  -- SIGN REVERSES" if flipped else
+                       "  -- magnitude more than halves"),
+                    f"a Simpson's paradox on `{sc}`. Report the "
+                    f"stratified association, not the pooled one; the "
+                    f"pooled sign is an artifact of the entanglement"))
+    return out
+
+
 CHECKS = [
     ("C1 gated predicates", check_gated_predicates),
     ("C2 definedness floors", check_definedness_floor),
@@ -343,6 +435,7 @@ CHECKS = [
     ("C5 effect-size DV", check_effect_sizes),
     ("C6 group sizes", check_group_sizes),
     ("C7 reference points", check_reference_points),
+    ("C8 pooled vs stratified", check_pooled_not_stratified),
 ]
 
 

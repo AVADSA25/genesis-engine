@@ -340,6 +340,14 @@ FORCE_CV       = 0.10    # target coefficient of variation
 # the same direction as the effect under test. Averaging over the window
 # washes it out, which is why the grid figure is safe and a snapshot is
 # not. These fields reproduce the grid's measure at per-cell resolution.
+# v6 Task Q: positive control. Pattern stability is held at zero for
+# every cell until tick PLANT_MAP_DELAY, making spatial organization
+# PHYSICALLY impossible before then. This plants a known ordering in the
+# dynamics, with no involvement of the phase detector, the gate, or CV -
+# so ground truth is known exactly and the measurement can be calibrated
+# against it. 0 disables the plant.
+PLANT_MAP_DELAY = 0
+
 SS_WINDOW_FRAC = 0.8     # steady-state window starts at 80% of the run
 SS_OBS_EVERY = 4         # emit per-cell observations every Nth sample
 
@@ -366,7 +374,7 @@ def run_simulation(seed: int, max_ticks: int = 80000, verbose: bool = False,
         "RESOURCE_REGEN", "MAX_RESOURCE",
         "PHASE_B_CV", "PHASE_C_S", "PHASE_D_S", "PHASE_D_CV", "PHASE_D_GEN",
         "MUTATION_RATE",
-        "SAMPLE_INTERVAL", "N_CV_FIXED",
+        "SAMPLE_INTERVAL", "N_CV_FIXED", "PLANT_MAP_DELAY",
         "FORCE_DIVISION", "FORCE_T_MEAN", "FORCE_CV",
     }
     _saved = {}
@@ -426,8 +434,14 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
                     c.prev_radius = c.radius
 
             # Stability measurement
+            # v6 Task Q: hold S at zero until the planted time.
+            if PLANT_MAP_DELAY > 0 and tick < PLANT_MAP_DELAY:
+                c.pattern_s = 0.0
+                c.snapshots = []
+                c.stab_tick = 0
             c.stab_tick += 1
-            if c.stab_tick >= STAB_WINDOW:
+            if c.stab_tick >= STAB_WINDOW and not (
+                    PLANT_MAP_DELAY > 0 and tick < PLANT_MAP_DELAY):
                 c.stab_tick = 0
                 raw_s = compute_stability(c)
                 c.pattern_s += 0.12 * (raw_s - c.pattern_s)  # EMA
