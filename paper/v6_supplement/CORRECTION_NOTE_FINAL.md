@@ -57,7 +57,8 @@ organization (Map) in 1,845/1,845 runs (100%), binomial
    paradox.
 
 **Corrected figure.** Without the gate, Clock precedes Map in **≈1%** of
-runs (1.0%, 1-tick resample N=100; 0.7%, threshold grid N=150; 0.0% in
+runs (1/97 = 1.0% by 1-tick resample; 0.7% by threshold grid, n=150;
+0.0% in
 2D across all nine cells).
 
 **The inverse is also unestablished.** The Map-first signal is partly the
