@@ -30,17 +30,25 @@ Recommendation: the first. It states the finding and the number, and
 > artifact. The phase detector latched the second predicate only after
 > the first, so no other outcome was reachable; the reported delay
 > equalled the sampling interval; the first predicate's latch time
-> tracked the point at which its statistic became computable, not a
-> change in the system. We document eight such defects, each sufficient
-> alone to produce the headline. Measured without the detector, the
-> ordering holds in ≈1% of runs. We then tested the underlying physical
-> hypothesis directly, imposing division regularity as a control
-> variable across 1,350 runs, and find it can be neither confirmed nor
-> refuted within this design. We argue the general lesson is
-> methodological: conceptual peer review reads arguments, and none of
-> our reviewers — human or machine — ran the detector against itself. We
+> tracked when its statistic became computable, not a change in the
+> system. We document eight such defects, each sufficient alone to
+> produce the headline. We then validate the corrected measurement by
+> planting a known ordering in the physics and recovering it
+> (ρ = +0.96), so that the corrected figure — the ordering holds in ≈1%
+> of runs — is a measurement rather than a blind spot. Three attempts to
+> rescue the hypothesis follow. The third is the result: a Clock metric
+> built to have no definedness floor becomes defined *later* than the
+> one it replaces, because measuring the regularity of a ~2,500-tick
+> periodic process requires observing several of its periods, while
+> spatial correlation over a ~40-tick field is measurable in ~150. The
+> asymmetry that produced the original artifact is therefore partly a
+> time-frequency constraint, not an implementation error, and the
+> ordering question is malformed as posed: comparing first-crossing
+> times measures the ratio of two intrinsic timescales, not the
+> dynamics. Such claims must be tested by intervention instead. We
 > release an automated checklist that recovers all eight defects from
-> source.
+> source, and note that its authors reproduced the same class of error
+> five times while writing this paper.
 
 ---
 
@@ -51,8 +59,9 @@ Recommendation: the first. It states the finding and the number, and
       (perfect separation, ablation robustness, cross-geometry replication)
 - 1.2 Thesis: reproducibility is not validity — a number can reproduce
       exactly and be a number of the wrong thing
-- 1.3 Contributions: eight documented defects; a direct test of the
-      underlying hypothesis; an automated detector-audit tool
+- 1.3 Contributions: eight documented defects; a validated corrected
+      measurement; the demonstration that the question is malformed as
+      posed; an automated detector-audit tool
 
 **2. The model and the original claim**
 - 2.1 Protocell dynamics (membrane growth, Gray-Scott RD, geometric division)
