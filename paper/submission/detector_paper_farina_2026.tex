@@ -122,8 +122,11 @@ reproducibility; self-correction
 
 \subsection{A result that looked strong}
 
-In April 2026 we published a protocell simulation reporting that the
-emergence of biological agency follows a mandatory order: temporal
+In April 2026 we published a protocell simulation --- in the tradition
+of minimal-cell and vesicle-replication modelling
+\citep{szostak2001,hanczyc2003} and of the open problems programme in
+artificial life \citep{bedau2000} --- reporting that the emergence of
+biological agency follows a mandatory order: temporal
 regularity of division (the \emph{Clock}) precedes persistent spatial
 organization (the \emph{Map}), which precedes thermodynamic selection
 (the \emph{Engine}). Across 1{,}845 Monte Carlo runs in which both
@@ -160,7 +163,12 @@ unavailable until a cell had divided four times.
 We take this as the paper's thesis. Reproducibility protects against
 fabrication and against transcription error. It offers no protection at
 all against an instrument that cannot emit the answer you are looking
-for.
+for. The distinction is not new --- computational reproducibility has
+long been argued to be necessary rather than sufficient
+\citep{peng2011,stodden2016}, and \citet{leek2015} make the sharper
+point that reproducible research can still be wrong --- but the case
+below is an unusually complete worked example, in which every number
+reproduces and the headline is nonetheless an artifact.
 
 \subsection{Contributions}
 
@@ -208,11 +216,12 @@ follows we consider the more useful statement.
 \subsection{Dynamics}
 
 The model follows a population of protocells. Each carries a
-Gray--Scott reaction--diffusion field on its membrane (a 24-node ring in
-1D; a 642-vertex icosphere with a cotangent Laplace--Beltrami operator
-in 2D), grows by lipid accretion at a rate set by a shared resource
-pool, and divides by geometric instability once its reduced volume
-crosses a noisy threshold --- the ``Adder'' mechanism. Pattern
+Gray--Scott reaction--diffusion field \citep{gray1983,pearson1993} on
+its membrane (a 24-node ring in 1D; a 642-vertex icosphere with a
+cotangent Laplace--Beltrami operator in 2D), grows by lipid accretion at
+a rate set by a shared resource pool, and divides by geometric
+instability once its reduced volume crosses a noisy threshold --- the
+``Adder'' mechanism \citep{taheri2015,campos2014}. Pattern
 stability $S$ couples multiplicatively into metabolic efficiency,
 nutrient uptake, and maintenance cost.
 
@@ -470,7 +479,8 @@ Pooled (as published) & 300 & $\mathbf{+0.4278}$ \\
 
 Lipid supply moves both variables at once, so they covary positively
 across conditions; within a fixed supply, slower-dividing runs reach
-\emph{lower} stability. The published value has the wrong sign.
+\emph{lower} stability. The published value has the wrong sign. The
+structure is the classical one \citep{simpson1951,blyth1972}.
 
 \subsection{The corrected figure}
 
@@ -791,7 +801,9 @@ The redesign could not have worked, for a reason that has nothing to do
 with implementation.
 
 \textbf{To measure how regular a periodic process is, one must observe
-several of its periods.} This is a time--frequency constraint, and it
+several of its periods.} This is a time--frequency constraint of the
+same family as the classical bound on simultaneous time and frequency
+resolution \citep{gabor1946}, and it
 is not specific to either estimator we tried. The CV of division
 intervals needs four divisions. A radius autocorrelation, measured
 here, needed $\sim$9 periods before it tracked regularity at all ---
@@ -864,7 +876,7 @@ in the supplement.
 The original paper went through three rounds of adversarial review by
 frontier language models, and the reviews were not poor. They identified
 genuine overreach in the conclusions, missing engagement with the
-assembly-theory literature, an unasked question about whether spatial
+assembly-theory literature \citep{marshall2021}, an unasked question about whether spatial
 organization might destabilise the division rhythm that enabled it, and
 an implicit assumption about the ratio of division period to
 pattern-consolidation time. Each prompted real additions. One prompted
@@ -1029,15 +1041,16 @@ the scrutiny applied to everything else:
 \begin{itemize}
 \item \textbf{The generalization argument.} Pattern stability measures
       persistent spatiotemporal correlation rather than classical Turing
-      bifurcation, so any ordering principle expressed in terms of it
+      bifurcation \citep{turing1952,kondo2010}, so any ordering principle expressed in terms of it
       applies to phase-separated condensates and lipid microdomains, not
       only to Gray--Scott chemistry. Conceptual; untouched.
 \item \textbf{The timescale anchor.} Fixed \emph{a priori} from lipid
       lateral diffusion ($D \approx 5\,\mu\mathrm{m}^2/\mathrm{s}$ on a
       $1.5\,\mu\mathrm{m}$ vesicle), one tick $\approx 0.45$\,s, giving
       division periods of 15.8--38.3 minutes across the lipid-supply
-      range. This brackets \emph{E.\ coli} doubling time and overlaps
-      published fatty-acid vesicle division times. The anchor was set
+      range. This brackets \emph{E.\ coli} doubling time
+      \citep{wang2010} and overlaps published fatty-acid vesicle
+      division times \citep{zhu2009}. The anchor was set
       without reference to the division data, so the agreement is a
       check rather than a fit.
 \item \textbf{One lipid-supply result, measured twice.} Higher lipid
@@ -1092,14 +1105,22 @@ noise levels; when they appear to, the most economical hypothesis is
 that the measurement cannot express the alternative.
 
 We suggest a working rule: a result of exactly 100\,\% should trigger an
-audit of the detector before it triggers a paper.
+audit of the detector before it triggers a paper. This is a
+detector-side counterpart to the base-rate arguments about why
+published findings so often fail to hold
+\citep{ioannidis2005,osc2015,baker2016}: those concern the statistics
+of claims, whereas the failure here is upstream of any statistic.
 
 \subsection{Pre-register the instrument, not only the analysis}
 
 Pre-registration conventionally covers hypotheses, thresholds and
-analysis plans. Every defect here would have survived such a
-pre-registration untouched, because all of them lived upstream of the
-analysis, in the measurement.
+analysis plans \citep{nosek2018,munafo2017}, and is the standard remedy
+proposed for undisclosed analytic flexibility
+\citep{simmons2011,gelman2014}. Every defect here would have survived
+such a pre-registration untouched, because all of them lived upstream of
+the analysis, in the measurement. Our own experience is a caution:
+\S\ref{sec:auditors} records a pre-registered decision rule that
+returned the right verdict for the wrong reason.
 
 What was needed was a pre-registered \emph{instrument validation}: a
 demonstration, before any result is reported, that the detector can
@@ -1156,6 +1177,9 @@ because review reads arguments and none of these defects was in the
 argument --- together with a checklist that finds all eight in under a
 second, including the two the authors themselves got wrong while
 writing this paper.
+
+% ════════════════════════════════════════════════════════════════════
+\bibliography{refs}
 
 % ════════════════════════════════════════════════════════════════════
 \section*{Data and code availability}
