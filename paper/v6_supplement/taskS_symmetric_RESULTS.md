@@ -1,130 +1,80 @@
-# Task S — RESULTS: the asymmetry is physical, not a defect
+# v6 Task S — symmetric-metrics redesign (archived re-run)
 
-Pre-registered at `0ff4ed0`. **S1 fails.** Per the decision rule fixed
-in advance, S2 and S3 were not computed.
+Regenerated from `results_v6/taskS_symmetric.csv` by
+`analysis_v6_taskS.py`. The original execution of this task was done
+inline and its outputs were never written to disk; the numbers below
+supersede any earlier prose figures.
 
----
+**Design.** Replace CV — undefined until a cell completes four
+divisions — with `clock_r`, the autocorrelation of a cell's own radius
+trajectory, which needs no divisions. If the Clock/Map definedness
+asymmetry were purely an artifact of the CV estimator, `clock_r`
+should become defined much earlier than CV.
 
-## What was attempted
+**Runs.** 40 seeds x 2 parameterisations, 20000 ticks each, 1D engine.
 
-Replace the Clock metric (CV of division intervals, undefined until four
-divisions) with one having no definedness floor, so Clock and Map switch
-on at comparable times and their first-crossing times can be compared.
+## Definedness (median first tick defined; -1 runs excluded)
 
-## What happened — twice
+| parameterisation | buffer | Map: S | Clock old: CV | Clock new: clock_r |
+|---|---|---|---|---|
+| `long` | 6000 ticks | 150 (n=38) | 4450 (n=40) | 6000 (n=40) |
+| `short` | 400 ticks | 150 (n=38) | 4450 (n=40) | 400 (n=40) |
 
-**First attempt (short buffer, 400 ticks, lags 30–200).**
-Invalidated before S1 was run at scale:
+## Validity check: rho(clock_r, CV) at steady state
 
-```
-rho(clock_r, CV) = +0.0420, p = 0.897   (n = 12, steady state)
-```
+A genuine regularity metric must correlate **negatively** with CV
+(more regular -> higher autocorrelation, lower CV).
 
-No correlation with regularity at all. Cause: the measured division
-period is **~2,495 ticks**; the lag window reached only 200. The metric
-was measuring short-timescale growth smoothness.
+| parameterisation | buffer | median division period | rho | p | n | verdict |
+|---|---|---|---|---|---|---|
+| `long` | 6000 ticks | 2625 ticks | -0.0822 | 0.6142 | 40 | INVALID |
+| `short` | 400 ticks | 2625 ticks | -0.1897 | 0.2411 | 40 | INVALID |
 
-**Second attempt (valid buffer, 6,000 ticks, lags 150–3,000).**
-Buffer widened to span the division period. Definedness, 10 seeds,
-medians:
+## Reading
 
-| metric | defined at tick | asymmetry vs S |
-|---|---|---|
-| **S** (Map) | **150** | — |
-| **CV** (old Clock) | **4,825** | 32× |
-| **clock_r** (new Clock) | **6,000** | **40×** |
+The short buffer spans 400 ticks against a division period
+of ~2625 ticks: it cannot contain even one period, and the
+validity check confirms it measures nothing about regularity
+(rho = -0.1897, p = 0.241). It is reported here only
+to document that the first parameterisation was invalid.
 
-`rho(clock_r, CV) = −0.2364, p = 0.511` — correct sign, still not
-significant.
+The long buffer spans 6000 ticks, ~2.3
+division periods, and is the one that can work.
 
-**S1 criterion:** the two metrics must become defined within 20% of each
-other. Observed ratio: **40×**. The redesign made the asymmetry *worse
-than the problem it was built to solve.*
+**The result.** `clock_r` was built specifically to have no
+definedness floor. It becomes defined at a median tick 6000, later than the CV metric
+it replaces (4450), and far later than the spatial metric
+S (150).
 
----
+**Why this is not fixable by a better estimator.** `clock_r` is
+defined only once a cell's radius buffer is full, i.e. once that
+cell has lived 6000 ticks. Shortening the buffer is what
+the `short` row does, and it destroys validity. The floor is
+therefore bounded below by the requirement to observe several
+division periods — a time-frequency constraint on measuring the
+regularity of a slow periodic process, not an implementation
+choice. Any Clock metric faces it; the spatial metric does not,
+because its correlation length is set by a ~40-tick field
+relaxation rather than by the division cycle.
 
-## Why this is a finding rather than a failure
+**Selection caveat (stated explicitly).** Because the buffer is
+per-cell and daughters are constructed fresh (`Cell.create`, empty
+`radius_hist`, `age = 0`) while mothers retain theirs, `clock_r` at
+any tick is an average over the subpopulation of cells old enough
+to have filled a 6000-tick buffer. This is age-selected by
+construction. It does not rescue the metric: a cell too young to
+have a full buffer is precisely a cell whose period has not been
+observed. The selection is a restatement of the constraint, not a
+confound that hides it.
 
-The redesign could not have worked, for a reason that has nothing to do
-with implementation.
-
-**To measure how regular a periodic process is, you must observe several
-of its periods.** This is a time-frequency constraint, not a coding
-choice. Every candidate Clock metric inherits it:
-
-| metric | minimum observation |
-|---|---|
-| CV of division intervals | 4 divisions ≈ 4 × 2,495 ticks |
-| autocorrelation of radius | ≥ 2 periods ≈ 5,000 ticks |
-| *any* per-cell regularity measure | several division periods |
-
-Meanwhile **S** measures spatial correlation of a reaction-diffusion
-field, whose intrinsic correlation time is ~40 ticks. It is defined
-after ~150.
-
-The ~4,000-tick gap is therefore set by the **ratio of the two
-phenomena's intrinsic timescales** — a slow periodic process
-(~2,500 ticks) against a fast field process (~40 ticks) — and not by any
-choice we made.
-
-### Consequence: Defect 3 is partly not a defect
-
-The v6 audit catalogued the CV definedness floor as **Defect 3**, an
-implementation error. That was only half right.
-
-- The *specific* floor (four divisions, from `len(division_times) >= 3`)
-  is an implementation choice and could be loosened somewhat.
-- The *existence* of a floor of order several division periods is
-  **physical and unavoidable**.
-
-**No simulation redesign removes it.** Not this one, not a better one.
-
-### Consequence: the ordering question is malformed as posed
-
-"Does Clock precede Map?" asked as *which metric crosses its threshold
-first* compares two quantities that become knowable at different times
-**by their nature**. The comparison measures the timescale ratio, not
-the dynamics.
-
-This explains, in one stroke, why every approach in this audit failed
-the same way — the gate, the definedness floor, the imposed-CV grid, the
-interval floor. All were attempts to time-order two phenomena that
-cannot be timed against each other.
+**Conclusion.** The Clock/Map definedness asymmetry that produced
+defect 3 is only partly an implementation error. The specific
+four-division CV floor is ours. A floor of order several division
+periods is physical, and it means comparing first-crossing times
+between these two metrics measures their timescale ratio rather
+than the dynamics. The ordering question is malformed as posed.
 
 ---
 
-## The constructive part
-
-Ordering claims of this kind should be tested by **intervention**, not
-by first-crossing timing:
-
-> *Does perturbing division regularity change spatial organization?*
-
-That is causal, has no definedness problem, and is exactly what Task 3
-did by imposing CV as a control variable. Its answer was **no support**
-for the theory (ρ(CV, S) = +0.22, opposite in sign, and it did not
-survive its confound checks).
-
-So the theory has been tested by the method that *can* test it, and it
-did not find support. It has not been tested by the method that
-*cannot* — and never could have been.
-
-### And a laboratory escapes this entirely
-
-A microscope tracking individual lineages measures both quantities
-continuously from t = 0. It does not wait for a statistic to become
-computable, because it records events rather than estimating summaries.
-Experiment E in `LAB_PROTOCOL.md` is not a fallback — it is the only
-instrument that can pose the question as originally intended.
-
----
-
-## Evaluation criteria used
-
-- S1 threshold (20% agreement in definedness) fixed in the
-  pre-registration; not moved.
-- The first `clock_r` parameterisation was disqualified on a validity
-  check (correlation with CV) **before** S1 was evaluated, not after.
-- Definedness measured as the first sampled tick at which each metric
-  returns a value, medians over 10 seeds.
-- S2 and S3 not computed, per the pre-registered decision rule.
+Raw data: `results_v6/taskS_symmetric.csv`. 
+Regenerate: `python3 analysis_v6_taskS.py`.
