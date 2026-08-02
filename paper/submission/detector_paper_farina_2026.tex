@@ -519,6 +519,21 @@ detector, the gate, or the Clock statistic; ground truth known exactly.
 A wall-clock plant was chosen deliberately, since gating the plant on
 division regularity would inherit the very floor under test.
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig1_positive_control.pdf}
+\caption{The positive control. \textbf{Left:} median first-crossing
+tick of each predicate against planted Map delay. The Map crossing
+tracks the plant (dotted identity line); the Clock crossing does not
+follow it, but does shift from 4{,}625 to 3{,}650 once the plant bites
+--- the non-orthogonality noted below, and the reason ordering is judged
+within-run rather than against a fixed Clock time. \textbf{Right:}
+fraction of runs measured Clock-first, rising from 2.6\,\% to 100\,\%
+as the plant crosses the natural Clock time. Annotated $n$ is the number
+of runs in which both predicates latched, which falls at large plants.}
+\label{fig:control}
+\end{figure}
+
 \begin{table}[H]
 \centering
 \caption{Positive control. 280 runs, seven plant levels $\times$ 40
@@ -729,6 +744,21 @@ We therefore swept the buffer to ask whether \emph{any} span yields a
 valid metric, holding the sample count fixed at 120 so that only the
 span varies and reporting all four arms rather than stopping at the
 first that passed.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2_definedness.pdf}
+\caption{Why the redesign could not work. \textbf{Left:} validity of
+$\mathrm{clock}_r$ against buffer span. The metric does not track
+division regularity until its history spans $\sim$9 periods; the
+2.4-period arm has the wrong sign. Filled points are the selection
+sweep (black: does not clear the four-arm Bonferroni threshold); the
+open diamond is the widest arm re-run on 40 fresh seeds.
+\textbf{Right:} first tick at which each metric is defined, log scale.
+Because definedness equals buffer length identically, the span that
+buys validity is also the delay it costs.}
+\label{fig:definedness}
+\end{figure}
 
 \begin{table}[H]
 \centering
