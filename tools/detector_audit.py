@@ -143,15 +143,63 @@ def check_definedness_floor(root):
     return out
 
 
+# ── CSV reading ───────────────────────────────────────────────────────
+# Read a CSV, skipping leading `#` comment lines.
+#
+# This exists because of a self-inflicted C0-class failure. A staleness
+# disclosure was prepended to web/results/summary.csv as `#` comments.
+# csv.DictReader treated the first comment as the header, every expected
+# column went missing, the `not rows or KEY not in rows[0]` guards below
+# skipped the file, and two real findings silently disappeared from the
+# report -- total 30 -> 29. Nothing errored. The tool went blind to a
+# file it was asked to check, and the drop went unnoticed for a day
+# because the audit was not re-run after the note was added.
+#
+# A checker that silently skips what it cannot parse reports a clean
+# bill of health for files it never read. read_csv therefore strips
+# comments, and callers use want_cols() so that an unreadable or
+# unexpected file produces a FINDING rather than silence.
+def read_csv(path):
+    try:
+        with open(path) as f:
+            lines = [ln for ln in f if not ln.lstrip().startswith("#")]
+    except OSError:
+        return None
+    if not lines:
+        return []
+    return list(csv.DictReader(lines))
+
+
+def want_cols(out, path, rows, cols, check):
+    """True if `rows` is usable and has `cols`; else record why and stop."""
+    if rows is None:
+        out.append(Finding(f"{check} unreadable", "major", str(path),
+                           "file could not be read",
+                           "a check that cannot read its input is not a "
+                           "passing check; fix the path or the permissions"))
+        return False
+    if not rows:
+        return False
+    missing = [c for c in cols if c not in rows[0]]
+    if missing:
+        hdr = ",".join(list(rows[0].keys())[:3])
+        out.append(Finding(f"{check} unparsed", "major", str(path),
+                           f"expected column(s) {missing} absent; header "
+                           f"parsed as `{hdr}...`",
+                           "the file was skipped rather than checked -- "
+                           "verify the header row is the first "
+                           "non-comment line"))
+        return False
+    return True
+
+
 # ── C3 / C4: data-level checks ────────────────────────────────────────
 def check_delay_equals_interval(root, sample_interval=None):
     out = []
     for csvp in sorted(root.rglob("summary.csv")):
-        try:
-            rows = list(csv.DictReader(open(csvp)))
-        except OSError:
-            continue
-        if not rows or "phase_B_tick" not in rows[0]:
+        rows = read_csv(csvp)
+        if not want_cols(out, csvp, rows, ["phase_B_tick", "phase_C_tick"],
+                         "C3 delay==interval"):
             continue
         d = []
         for r in rows:
@@ -260,11 +308,8 @@ def check_group_sizes(root):
     """Recompute effect-size group sizes from archived summaries."""
     out = []
     for csvp in sorted(root.rglob("summary.csv")):
-        try:
-            rows = list(csv.DictReader(open(csvp)))
-        except OSError:
-            continue
-        if not rows or "final_mean_s" not in rows[0]:
+        rows = read_csv(csvp)
+        if not want_cols(out, csvp, rows, ["final_mean_s"], "C6 group sizes"):
             continue
         hi = [r for r in rows if float(r["final_mean_s"]) > 0.3]
         lo = [r for r in rows if float(r["final_mean_s"]) < 0.1]
@@ -378,10 +423,7 @@ def check_pooled_not_stratified(root):
     for pattern, xc, yc, sc, label in specs:
         for csvp in sorted((root / "results_v6").glob(pattern)) \
                 if (root / "results_v6").exists() else []:
-            try:
-                rows = list(csv.DictReader(open(csvp)))
-            except OSError:
-                continue
+            rows = read_csv(csvp)
             if not rows or xc not in rows[0] or sc not in rows[0]:
                 continue
             def col(c):

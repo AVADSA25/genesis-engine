@@ -1037,7 +1037,7 @@ of the \emph{audit}: C7 catches the wrong-reference-point class, and
 flags as a finding any quantity anchored on a detector output. C8 was
 added after three Simpson's paradoxes passed C1--C7 untouched.
 
-Run against this repository the tool reports 30 findings, 15 critical,
+Run against this repository the tool reports 31 findings, 16 critical,
 and recovers all eight defects from source and archived data with no
 audit knowledge encoded. It independently locates the $n = 2$ comparison
 group that took three rounds of expert review and four months to notice
@@ -1046,6 +1046,37 @@ retained.
 
 Three checks are regular-expression based and tuned to this codebase's
 idioms; the tool is a floor, not a ceiling.
+
+\subsection{The tool went blind, and said nothing}
+
+A draft of this section reported 30 findings. Re-running the tool for
+this revision returned 29, and the discrepancy is worth the space.
+
+Between the two runs we had attached a staleness disclosure to
+\texttt{web/results/summary.csv} --- the archived copy served by the
+public dashboard --- as a block of \texttt{\#} comment lines, having
+decided against silently repointing a file on a live service.
+\texttt{csv.DictReader} took the first comment line as the header row.
+Every expected column was therefore absent, and each check guarded
+itself with a clause of the form \texttt{if not rows or KEY not in
+rows[0]: continue}. The file was skipped. Two genuine findings on it ---
+a C3 delay-equals-interval and a C6 degenerate split --- disappeared
+from the report. Nothing raised, nothing logged, no error.
+
+The failure is our own thesis in miniature, committed in the instrument
+built to detect it. A checker that silently skips what it cannot parse
+reports a clean bill of health for files it never opened, and the number
+that would have revealed it --- the total --- moved by one, in a
+direction easily read as improvement. It went unnoticed for a day
+because the audit was not re-run after the disclosure was added.
+
+The remedy is now in the tool. CSV reading strips comment lines, and
+every call site declares the columns it requires; a file that cannot be
+parsed, or that lacks them, produces a \emph{finding} rather than a
+skip. We recommend the general form of this for any automated check:
+\textbf{absence of evidence must be logged as loudly as evidence.}
+Restoring the two findings, and with C8's contribution, the corrected
+total is 31.
 
 \subsection{Why C8 generalises}
 
