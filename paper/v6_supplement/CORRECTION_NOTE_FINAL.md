@@ -18,15 +18,18 @@ organization (Map) in 1,845/1,845 runs (100%), binomial
    Clock latched strictly earlier, so 100% was the only reachable
    outcome; both p-values test unreachable nulls.
 2. **The delay is the sampling interval.** Median 50 ticks at 50-tick
-   sampling; exactly 1 at 1-tick sampling (93.8% of runs, N=100).
+   sampling; exactly 1 at 1-tick sampling (91 of the 97 re-run seeds in
+   which both predicates latched, 93.8%; 3 of 100 never latched Map).
 3. **The Clock latch is a definedness floor.** CV is undefined until a
    cell completes four divisions; the tick it becomes computable
-   coincides with the reported latch (4250 vs 4250 in 1D, 4950 vs 4975
-   in 2D). A later experiment showed this is only half an error: the
+   coincides exactly with the reported latch — 4200 vs 4200 in 1D
+   (n = 500) and 4900 vs 4900 in 2D (n = 200), medians over the full
+   archive. A later experiment showed this is only half an error: the
    *specific* four-division floor is ours, but a floor of order several
    division periods is **physical** — measuring the regularity of a
-   ~2,500-tick process requires observing several of its periods, while
-   the spatial metric needs ~150 ticks. See below.
+   process whose period is ~2,525 ticks (1D main study) requires
+   observing several of those periods, while the spatial metric is
+   defined by ~150 ticks. See below.
 4. **The mean delay is three runs.** 243 ± 2,319 ticks is carried by
    seeds 171, 294, 361 (69.0% of delay mass); excluding them, 75.7.
    `paper_data.json` already held `median = 50.0` beside the mean.
@@ -43,8 +46,8 @@ organization (Map) in 1,845/1,845 runs (100%), binomial
    not a valid pooling under any convention, one of whose inputs has
    n = 2. §4.3 explained the lower 2D *g* as "more spatial degrees of
    freedom": a physical story invented for an artifact.
-7. **Gate dependence is systematic.** Seven of 19 reported quantities
-   depend on detector outputs. Phase-D rates (90%/79%) are withdrawn;
+7. **Gate dependence is systematic.** Nine of 19 reported quantities
+   depend on detector outputs, and a tenth indirectly. Phase-D rates (90%/79%) are withdrawn;
    only the direction survives, and only because two confounds predict
    the opposite sign. **All four §5.3 results are withdrawn or demoted —
    §5.3 does not survive as physics;** two remain as arithmetic with
@@ -97,10 +100,15 @@ Phase-E differential (+0.147), as arithmetic only; the timescale anchor
 (15.8–38.3 min, bracketing *E. coli*, fixed a priori); extinction under
 forced fast division (32.4% at T=200, zero at T ≥ 1600; 27.3% at CV=0 vs
 ≤4% at CV ≥ 0.1); and **one** lipid-supply result confirmed by two
-measures — higher supply → faster division → lower pattern stability,
-seen as final *S* 0.823 → 0.644 and restated in thresholded form by
-Phase-D attainment. These are not three findings; ρ was the third and it
-is withdrawn.
+measures — higher supply → lower pattern stability, seen as final *S*
+0.823 → 0.644 and restated in thresholded form by Phase-D attainment.
+The **mechanism is not identified**: an earlier draft of this note
+asserted the effect runs *through* faster division, but within every
+lipid stratum the correlation between division period and stability is
+strongly negative (−0.60 to −0.75), which is the opposite of what that
+mechanism predicts. Attributing a between-condition correlation to a
+plausible mechanism is the same error as defect 6. These are not three
+findings; ρ was the third and it is withdrawn.
 
 **On reproducibility.** Two of the three companion papers cannot be
 reproduced from surviving materials: no Vesicle Division code exists on
