@@ -72,6 +72,24 @@ PARAMS = {
               "RHIST_LAG_LO": 3, "RHIST_LAG_HI": 60},
 }
 
+# --- Buffer sweep (V6_SWEEP=1) -------------------------------------
+# Neither parameterisation above passes the validity check, so the
+# question "is a valid Clock metric reachable at ANY buffer length?"
+# is still open. This sweep answers it as a curve rather than by
+# picking a length that works, which would be tuning.
+#
+# One variable only: RHIST_LEN is held at 120 so every arm uses the
+# same number of samples (identical estimator quality) and only the
+# span in ticks changes. Max searched lag is half the buffer in all
+# arms, which is the standard choice, not a per-arm tuning knob.
+SWEEP = {
+    f"buf{e*120}": {"RHIST_EVERY": e, "RHIST_LEN": 120,
+                    "RHIST_LAG_LO": 3, "RHIST_LAG_HI": 60}
+    for e in (10, 50, 100, 200)
+}
+if os.environ.get("V6_SWEEP") == "1":
+    PARAMS = SWEEP
+
 
 def first_tick(ticks, vals, pred):
     for t, v in zip(ticks, vals):
@@ -127,7 +145,9 @@ if __name__ == "__main__":
             if i % 20 == 0 or i == len(jobs):
                 print(f"  [{i}/{len(jobs)}] {time.time()-t0:.0f}s", flush=True)
     rows.sort(key=lambda r: (r["variant"], r["seed"]))
-    path = OUT / "taskS_symmetric.csv"
+    path = OUT / ("taskS_buffer_sweep.csv"
+                  if os.environ.get("V6_SWEEP") == "1"
+                  else "taskS_symmetric.csv")
     with open(path, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         w.writeheader(); w.writerows(rows)

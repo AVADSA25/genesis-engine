@@ -123,6 +123,33 @@ question a simulation structurally cannot.
 
 ---
 
+## TASK S IS NOW ARCHIVED — AND IT CHANGED (2 Aug 2026)
+
+Task S had been run inline; no script, no CSV. Re-run and archived as
+`experiment_v6_taskS_symmetric.py` -> `results_v6/taskS_symmetric.csv`
+(40 seeds x 2 parameterisations, 20k ticks), analysed by
+`analysis_v6_taskS.py`, which regenerates the results document.
+
+Definedness result HOLDS and is the paper's spine:
+  S = 150, CV = 4450, clock_r = 6000. The floor-free metric arrives
+  last. Note 4450, not the 4825 previously in prose — definedness lies
+  on a 50-tick grid, so 4825 was a median over an even run count.
+
+Validity result CHANGED, against the paper:
+  rho(clock_r, CV) = -0.2364 is exactly seeds 0-9 and was NEVER
+  significant (p = 0.511). At n = 40 it is -0.0822 (p = 0.614).
+  The long parameterisation fails the same validity check the short one
+  fails. The paper quotes the correlation without its p-value, which
+  presents an unvalidated metric as a working one.
+
+=> Do not describe clock_r as a metric that "works but arrives late."
+   It arrives late AND was never shown to measure regularity.
+
+OPEN: buffer sweep running (`V6_SWEEP=1`, 4 spans x 40 seeds, 40k
+ticks -> `results_v6/taskS_buffer_sweep.csv`) to establish whether
+validity is reachable at ANY buffer length. Sample count held at 120 so
+only span varies — a curve, not a search for a length that works.
+
 ## NEXT STEPS
 
 1. Post the SSRN correction (yours)
