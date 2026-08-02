@@ -7,8 +7,8 @@ Section outline, title and abstract only. No prose drafted.
 
 ## Proposed title
 
-> **The Detector Was the Result: How Eight Measurement Artifacts
-> Produced a 100% Ordering Law in a Protocell Model**
+> **The Detector Was the Result: Eight Measurement Artifacts, and a
+> Question That Cannot Be Asked This Way**
 
 Alternates:
 - *Reproducible and Wrong: A Self-Audit of a Perfect Simulation Result*
@@ -83,51 +83,76 @@ Recommendation: the first. It states the finding and the number, and
       within every stratum
 - 3.10 The corrected figure: ≈1% by two independent methods
 
-**4. Testing the hypothesis directly**
-- 4.1 Design: division timing imposed externally; regularity becomes a
-      control variable; no detector, no CV estimator in the path
-- 4.2 Results: 1,350 runs; the association runs opposite to prediction
-- 4.3 Confound analysis: three of four pre-registered checks pass; the
-      barely-dividing fraction fails by 2.3 pp
-- 4.4 **Verdict: neither confirmed nor refuted.** Why we do not claim
-      refutation, and why we did not move the threshold after seeing it
-- 4.5 Design limitation: only two physically valid periods; the
-      "too fast to organize" regime is untestable here
+**4. Validating the corrected instrument** *(new — do this before any null)*
+- 4.1 Why a null from an unvalidated instrument is worthless — the same
+      error as the original paper, pointed the other way
+- 4.2 Planting a known ordering in the physics (not the detector);
+      ρ = +0.96 recovery, Clock-first 2.6% → 100% across the plant sweep
+- 4.3 Consequence: the ≈1% figure is a measurement, not a blind spot
 
-**5. Why review did not catch this**
-- 5.1 What review did catch — three rounds found real problems
+**5. Three attempts to rescue the hypothesis, and what the third revealed**
+- 5.1 *Intervention.* Impose regularity as a control variable (1,350
+      runs). Association runs opposite to prediction; survives three of
+      four pre-registered confounds, fails the fourth. Neither confirmed
+      nor refuted
+- 5.2 *Reformulation.* Minimum-interval floor instead of regularity.
+      Fails — and the pooled ρ = +0.38 that looked like support is the
+      third Simpson's paradox in the project
+- 5.3 *Redesign.* Build a Clock metric with no definedness floor. **It
+      arrives at tick 6,000 — later than the metric it replaces**
+- 5.4 **The finding.** You cannot measure the regularity of a
+      ~2,500-tick periodic process without observing several periods;
+      spatial correlation over a ~40-tick field needs ~150. The
+      asymmetry is a time-frequency constraint, not a defect. Defect 3
+      is only half ours
+- 5.5 **Therefore the question is malformed as posed.** First-crossing
+      comparison between a slow periodic process and a fast field
+      process measures their timescale ratio, not their dynamics. This
+      explains why every approach failed identically
+- 5.6 The constructive replacement: ordering claims must be tested by
+      *intervention*, not timing — and §5.1 is that test
+
+**6. Why review did not catch this**
+- 6.1 What review did catch — three rounds found real problems
       (overreach, missing citations, an unasked question about
       back-reaction) and produced genuine improvements
-- 5.2 What it could not catch: conceptual review reads the *argument*.
+- 6.2 What it could not catch: conceptual review reads the *argument*.
       Every defect here lived in the *instrument*
-- 5.3 The auditor repeated the failure: three results were placed in the
-      survivor column during this audit and later withdrawn, each time
-      by confirming a number reproduced without checking its reference
-      point
-- 5.4 Implication: adversarial review of claims is not a substitute for
-      mechanical audit of instruments
+- 6.3 The auditor repeated the failure, five times, in two distinct
+      forms. **Wrong reference point** (×3): results placed in the
+      survivor column, each later withdrawn after confirming a number
+      reproduced without checking what it was a number *of*. **Wrong
+      scope** (×2): a correct number generalised past its domain — "~50%
+      of cells barely divide in every condition" was true of one forced-
+      division design and false of the model, and a pre-registered
+      decision rule returned the right verdict for the wrong reason
+- 6.4 Implication: adversarial review of claims is not a substitute for
+      mechanical audit of instruments — and the auditor needs the same
+      mechanical checks as the author
 
-**6. `detector_audit.py`**
-- 6.1 The seven checks and what each encodes
-- 6.2 C7: every reported quantity must declare its reference point
-- 6.3 Results: 30 findings, 15 critical; all eight defects recovered
+**7. `detector_audit.py`**
+- 7.1 The eight checks and what each encodes
+- 7.2 C7: every reported quantity must declare its reference point
+- 7.3 C8: pooled statistics must survive stratification — added after
+      three Simpson's paradoxes slipped past C1–C7
+- 7.4 Results: 30 findings, 15 critical; all eight defects recovered
       from source with no audit knowledge encoded
-- 6.4 Limits: three checks are regex-based; a floor, not a ceiling
+- 7.5 Limits: three checks are regex-based; a floor, not a ceiling
 
-**7. What survives**
+**8. What survives**
 - §5.2's generalization argument; two §5.3 results as arithmetic only;
   the lipid-supply finding as one result measured two ways; the
   a-priori timescale anchor; extinction under forced fast division
 - Explicit statement of what is *not* claimed
 
-**8. Discussion**
-- 8.1 Perfect separation as a warning sign, not a strength
-- 8.2 Pre-registering detector validation, not just analyses
-- 8.3 Why we published the retraction with the data rather than quietly
-- 8.4 Cost: what this would have taken to catch before submission
+**9. Discussion**
+- 9.1 Perfect separation as a warning sign, not a strength
+- 9.2 Pre-registering detector validation, not just analyses
+- 9.3 Why we published the retraction with the data rather than quietly
+- 9.4 Cost: what this would have taken to catch before submission
       (one afternoon; the tool runs in seconds)
 
-**9. Data and code availability**
+**10. Data and code availability**
 - Repository public throughout, including during the period the claim
   was live; `paper_data.json` already contained `median = 50.0`
   beside the reported mean

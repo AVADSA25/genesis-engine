@@ -20,8 +20,13 @@ organization (Map) in 1,845/1,845 runs (100%), binomial
 2. **The delay is the sampling interval.** Median 50 ticks at 50-tick
    sampling; exactly 1 at 1-tick sampling (93.8% of runs, N=100).
 3. **The Clock latch is a definedness floor.** CV is undefined until a
-   cell completes four divisions. The tick it becomes computable
-   coincides with the reported latch: 4250 vs 4250 (1D), 4950 vs 4975 (2D).
+   cell completes four divisions; the tick it becomes computable
+   coincides with the reported latch (4250 vs 4250 in 1D, 4950 vs 4975
+   in 2D). A later experiment showed this is only half an error: the
+   *specific* four-division floor is ours, but a floor of order several
+   division periods is **physical** — measuring the regularity of a
+   ~2,500-tick process requires observing several of its periods, while
+   the spatial metric needs ~150 ticks. See below.
 4. **The mean delay is three runs.** 243 ± 2,319 ticks is carried by
    seeds 171, 294, 361 (69.0% of delay mass); excluding them, 75.7.
    `paper_data.json` already held `median = 50.0` beside the mean.
@@ -56,6 +61,13 @@ runs (1.0%, 1-tick resample N=100; 0.7%, threshold grid N=150; 0.0% in
 same definedness floor; this model cannot adjudicate the ordering either
 way.
 
+**The corrected measurement was itself validated.** Planting a known
+ordering in the physics (280 runs), the ungated method recovered it:
+ρ = +0.96 between planted and measured, with Clock-first moving from
+2.6% to 100% as the plant crossed the natural Clock time. The ≈1% figure
+is a real measurement, not a blind instrument, and the method is not
+biased toward either direction.
+
 **The hypothesis was then tested directly** — 1,350 runs with regularity
 imposed as a control variable, no detector or CV estimator in the path.
 The association ran opposite to prediction and survived three of four
@@ -63,9 +75,18 @@ pre-registered confound checks, including a matched-interval control
 that excludes the obvious alternative. It failed the fourth:
 barely-dividing cells rise from 44.0% to 56.2% across the range
 (threshold 10 pp). It can therefore be **neither confirmed nor refuted**
-here. The deeper limit is that roughly half of all cells in every
-condition barely divide, so division-perturbation effects cannot be
-isolated in this model at all.
+by that experiment.
+
+**The original question is malformed as posed.** Asking which metric
+crosses its threshold first compares a slow periodic process (division
+regularity, period ~2,500 ticks, requiring several periods to measure at
+all) against a fast field process (spatial correlation, ~40 ticks,
+measurable by ~150). An attempt to build a Clock metric with no
+definedness floor produced one defined at tick 6,000 — *later* than the
+metric it was built to replace. This is a time-frequency constraint, not
+an implementation choice, and no simulation redesign removes it.
+Ordering claims of this kind must be tested by **intervention**, which
+is what the imposed-regularity experiment above did.
 
 **Also withdrawn:** the Damköhler framing (τ_pattern was the sampling
 interval) and the 2D back-reaction (*p* = 0.427). A v5.1c figure of
