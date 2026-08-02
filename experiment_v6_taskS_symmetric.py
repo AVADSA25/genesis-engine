@@ -63,6 +63,7 @@ OUT = ROOT / "results_v6"
 OUT.mkdir(exist_ok=True)
 
 N_SEEDS = int(os.environ.get("V6_N_SEEDS", "40"))
+SEED0 = int(os.environ.get("V6_SEED0", "0"))
 MAX_TICKS = int(os.environ.get("V6_MAX_TICKS", "20000"))
 
 PARAMS = {
@@ -82,10 +83,20 @@ PARAMS = {
 # same number of samples (identical estimator quality) and only the
 # span in ticks changes. Max searched lag is half the buffer in all
 # arms, which is the standard choice, not a per-arm tuning knob.
+#
+# V6_SWEEP_EVERY selects which arms to run (comma-separated RHIST_EVERY
+# values); V6_OUT names the output file. Together these allow an
+# out-of-sample confirmation of a single arm on fresh seeds via
+# V6_SEED0, which is how the 24000-tick arm was re-tested after the
+# initial sweep gave it p = 0.016 against a Bonferroni threshold of
+# 0.0125 over four arms.
+SWEEP_EVERY = tuple(
+    int(x) for x in os.environ.get("V6_SWEEP_EVERY", "10,50,100,200").split(",")
+)
 SWEEP = {
     f"buf{e*120}": {"RHIST_EVERY": e, "RHIST_LEN": 120,
                     "RHIST_LAG_LO": 3, "RHIST_LAG_HI": 60}
-    for e in (10, 50, 100, 200)
+    for e in SWEEP_EVERY
 }
 if os.environ.get("V6_SWEEP") == "1":
     PARAMS = SWEEP
@@ -133,7 +144,7 @@ def one(job):
 
 
 if __name__ == "__main__":
-    jobs = [(v, s) for v in PARAMS for s in range(N_SEEDS)]
+    jobs = [(v, s) for v in PARAMS for s in range(SEED0, SEED0 + N_SEEDS)]
     print(f"Task S archival re-run: {len(PARAMS)} parameterisations x "
           f"{N_SEEDS} seeds = {len(jobs)} runs @ {MAX_TICKS} ticks",
           flush=True)
@@ -145,9 +156,10 @@ if __name__ == "__main__":
             if i % 20 == 0 or i == len(jobs):
                 print(f"  [{i}/{len(jobs)}] {time.time()-t0:.0f}s", flush=True)
     rows.sort(key=lambda r: (r["variant"], r["seed"]))
-    path = OUT / ("taskS_buffer_sweep.csv"
-                  if os.environ.get("V6_SWEEP") == "1"
-                  else "taskS_symmetric.csv")
+    path = OUT / os.environ.get(
+        "V6_OUT",
+        "taskS_buffer_sweep.csv" if os.environ.get("V6_SWEEP") == "1"
+        else "taskS_symmetric.csv")
     with open(path, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         w.writeheader(); w.writerows(rows)
