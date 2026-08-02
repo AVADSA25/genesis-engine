@@ -94,6 +94,8 @@ class Cell:
     snapshots: list = field(default_factory=list)
     stab_tick: int = 0
     next_div_interval: float = -1.0   # v6 Task 3, forced-division mode
+    radius_hist: list = field(default_factory=list)  # v6 Task S
+    clock_r: float = -1.0                            # -1 = undefined
 
     @staticmethod
     def create(rng: np.random.Generator, genome: Optional[Genome] = None) -> "Cell":
@@ -122,6 +124,28 @@ def draw_div_interval(rng: np.random.Generator) -> float:
     shape = 1.0 / (FORCE_CV ** 2)
     scale = FORCE_T_MEAN * (FORCE_CV ** 2)
     return float(max(1.0, rng.gamma(shape, scale)))
+
+
+def compute_clock_r(cell: Cell) -> float:
+    """Normalised autocorrelation of the radius trajectory.
+
+    Returns -1.0 while undefined (buffer not yet full). Unlike CV of
+    division intervals this needs no divisions at all -- it is defined
+    as soon as RHIST_LEN samples exist, on the same timescale as S.
+    """
+    h = cell.radius_hist
+    if len(h) < RHIST_LEN:
+        return -1.0
+    x = np.asarray(h, dtype=float)
+    x = x - x.mean()
+    denom = float(np.dot(x, x))
+    if denom <= 1e-12:
+        return 0.0
+    best = 0.0
+    for lag in range(RHIST_LAG_LO, min(RHIST_LAG_HI, len(x) - 2) + 1):
+        num = float(np.dot(x[:-lag], x[lag:]))
+        best = max(best, num / denom)
+    return float(np.clip(best, 0.0, 1.0))
 
 
 def rd_step(cell: Cell, rng: np.random.Generator):
@@ -303,6 +327,11 @@ class SimResult:
     # Ordering as measured by the ungated predicates (None if either
     # never crossed). True = CV crossed strictly first, False = S first.
     ungated_clock_before_map: Optional[bool] = None
+    # v6 Task S: symmetric-metric ordering. clock_r has no definedness
+    # floor, so both metrics switch on at comparable times.
+    sym_clockdef_tick: int = -1   # first tick clock_r is defined
+    sym_mapdef_tick: int = -1     # first tick S is defined (>0)
+    ts_clock_r: list = field(default_factory=list)
     # v6 Task 3: reduced volume at each forced division (physicality log)
     rv_at_division: list = field(default_factory=list)
     # v6 Task A1: per-cell (most-recent realized division interval,
@@ -348,6 +377,25 @@ FORCE_CV       = 0.10    # target coefficient of variation
 # against it. 0 disables the plant.
 PLANT_MAP_DELAY = 0
 
+# v6 Task S: symmetric Clock metric with NO definedness floor.
+# CV of division intervals needs four completed divisions before it
+# exists (~4250 ticks), while S is defined after STAB_DEPTH*STAB_WINDOW
+# = 200 ticks. That ~4000-tick asymmetry is what makes every ordering
+# comparison uninterpretable. clock_r instead autocorrelates the cell's
+# own radius trajectory: a regularly dividing cell traces a sawtooth
+# that autocorrelates strongly at its period, an irregular one weakly.
+# It is defined as soon as the buffer fills and needs NO divisions.
+RHIST_EVERY = 10        # sample radius every N ticks
+RHIST_LEN   = 40        # buffer length -> 400 ticks of history
+RHIST_LAG_LO = 3        # min lag searched (30 ticks)
+RHIST_LAG_HI = 20       # max lag searched (200 ticks)
+# NOTE (v6 Task S finding): the defaults above span 400 ticks and search
+# lags of 30-200 ticks, but the division period is ~2495 ticks, so they
+# CANNOT reach it. Verified: rho(clock_r, CV) = +0.04, p = 0.90 -- this
+# parameterisation does not measure division regularity at all. A valid
+# setting needs a buffer spanning >= 2 division periods (~5000 ticks),
+# which is what RHIST_* are overridden to in the Task S experiment.
+
 SS_WINDOW_FRAC = 0.8     # steady-state window starts at 80% of the run
 SS_OBS_EVERY = 4         # emit per-cell observations every Nth sample
 
@@ -375,6 +423,7 @@ def run_simulation(seed: int, max_ticks: int = 80000, verbose: bool = False,
         "PHASE_B_CV", "PHASE_C_S", "PHASE_D_S", "PHASE_D_CV", "PHASE_D_GEN",
         "MUTATION_RATE",
         "SAMPLE_INTERVAL", "N_CV_FIXED", "PLANT_MAP_DELAY",
+        "RHIST_EVERY", "RHIST_LEN", "RHIST_LAG_LO", "RHIST_LAG_HI",
         "FORCE_DIVISION", "FORCE_T_MEAN", "FORCE_CV",
     }
     _saved = {}
@@ -426,6 +475,11 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
             lipid_rate = LIPID_SUPPLY * resource_frac + rng.normal(0, LIPID_NOISE)
             growth = max(0.0, lipid_rate)
             c.radius += growth
+            # v6 Task S: rolling radius history for clock_r
+            if c.age % RHIST_EVERY == 0:
+                c.radius_hist.append(c.radius)
+                if len(c.radius_hist) > RHIST_LEN:
+                    c.radius_hist.pop(0)
 
             if c.age % 5 == 0:
                 growth_frac = (c.radius - c.prev_radius) / c.prev_radius if c.prev_radius > 0 else 0
@@ -561,6 +615,17 @@ def _run_simulation_body(seed: int, max_ticks: int, verbose: bool) -> SimResult:
                         result.ss_obs.append(
                             (tick, li, float(c.pattern_s), len(dt),
                              mn, mx, av, float(rv_now)))
+
+            # v6 Task S: population-mean clock_r over cells where it is
+            # defined; -1 while no cell has a full radius buffer.
+            crs = [compute_clock_r(c) for c in cells]
+            crs = [v for v in crs if v >= 0.0]
+            mean_cr = float(np.mean(crs)) if crs else -1.0
+            result.ts_clock_r.append(mean_cr)
+            if mean_cr >= 0.0 and result.sym_clockdef_tick < 0:
+                result.sym_clockdef_tick = tick
+            if mean_s > 0.0 and result.sym_mapdef_tick < 0:
+                result.sym_mapdef_tick = tick
 
             # ── Ungated predicate first-crossings (v6) ──────────────────
             # Evaluated on the SAME state as detect_phase below, but with
