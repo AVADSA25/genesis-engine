@@ -213,15 +213,34 @@ def check_delay_equals_interval(root, sample_interval=None):
             continue
         a = np.array(d, float)
         med = float(np.median(a))
-        si = sample_interval or int(med)
-        onfloor = float((a <= med).mean())
-        if med == si and onfloor > 0.5:
+
+        # The grid is INFERRED from the data (gcd of the observed delays)
+        # or supplied by the caller -- never defined to be the median.
+        #
+        # An earlier version computed `si = sample_interval or int(med)`
+        # with sample_interval always None, so `med == si` held for any
+        # integral median; and `(a <= med).mean() > 0.5` holds for almost
+        # any sample, by the definition of a median. The check could not
+        # fail. In a tool whose C1 detects predicates that cannot emit a
+        # violation, C3 was a check that could not emit a pass.
+        #
+        # The test below can fail, and does: it requires the median to be
+        # ONE grid step and a majority of delays to sit EXACTLY there.
+        nz = [int(x) for x in d if x > 0]
+        if not nz:
+            continue
+        grid = float(sample_interval) if sample_interval else float(
+            np.gcd.reduce(np.array(nz, dtype=np.int64)))
+        if grid <= 0:
+            continue
+        atfloor = float((a == grid).mean())
+        if med == grid and atfloor > 0.5:
             out.append(Finding(
                 "C3 delay==interval", "critical",
                 str(csvp.relative_to(root)),
-                f"median delay = {med:.0f} = the sampling interval; "
-                f"{100*onfloor:.1f}% of runs at or below it "
-                f"(IQR [{np.percentile(a,25):.0f}, "
+                f"median delay = {med:.0f} = the inferred sampling grid "
+                f"({grid:.0f}); {100*atfloor:.1f}% of runs sit exactly on "
+                f"it (IQR [{np.percentile(a,25):.0f}, "
                 f"{np.percentile(a,75):.0f}])",
                 "re-run at finer sampling before claiming a temporal gap; "
                 "if the delay tracks the interval it IS the interval"))

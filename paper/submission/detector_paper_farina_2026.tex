@@ -94,7 +94,8 @@ result: a Clock metric constructed specifically to have no definedness
 floor becomes defined \emph{later} than the metric it replaces. A
 buffer sweep shows why. The replacement only measures regularity at all
 once its history spans $\sim$9 division periods ($\rho = -0.46$,
-$p = 0.003$ out of sample; shorter buffers return the wrong sign), and
+$p = 0.003$ out of sample; every shorter buffer is indistinguishable
+from zero, and one returns the wrong sign), and
 its definedness time equals that buffer length identically --- so the
 earliest a valid Clock reading can exist is $\sim$24{,}000 ticks,
 against a spatial metric defined by $\sim$150. Measuring the regularity
@@ -105,11 +106,12 @@ time--frequency constraint rather than an implementation error, and the
 ordering question is malformed as posed: comparing first-crossing times
 measures the ratio of two intrinsic timescales, not the dynamics.
 Ordering claims of this kind must be tested by intervention instead. We
-release an automated checklist that recovers all eight defects from
-source, and record that its authors committed the same class of error
-six times while writing this paper --- the last of them an instrument
+release an automated checklist that recovers six of the eight defects
+from source, and record that its authors committed the same class of
+error seven times while writing this paper --- including an instrument
 validated by eye from an insignificant correlation, in the section
-arguing that unvalidated instruments are worthless.
+arguing that unvalidated instruments are worthless, and a check that,
+like the detector it was built to replace, could not fail.
 
 \vspace{6pt}
 \noindent\textbf{Keywords:} artificial life; protocell models;
@@ -183,9 +185,9 @@ reproduces and the headline is nonetheless an artifact.
       posed --- a time--frequency constraint, not a defect --- and the
       constructive replacement.
 \item \texttt{detector\_audit.py}, an eight-check runner that recovers
-      all eight defects from source and archived data with no audit
-      knowledge encoded.
-\item A record of six errors of the same class committed by the
+      six of the eight defects from source and archived data, with the
+      limits of the other two stated.
+\item A record of seven errors of the same class committed by the
       authors \emph{during} the audit, which we take to be the most
       instructive part of the account.
 \end{enumerate}
@@ -312,11 +314,14 @@ interquartile range is $[50, 50]$ --- zero width. In 1D, 434 of 482 runs
 (90.0\,\%) recorded a delay of exactly 50 ticks; in 2D, 193 of 198
 (97.5\,\%). Fifty ticks was the sampling interval.
 
-Re-running 100 seeds at 1-tick sampling, the gated delay collapses to
-exactly 1 tick in 91 of the 97 runs in which both predicates latched
-(93.8\,\%; in the remaining three seeds the Map predicate never
-latched). The delay is not a property of the system. It is the
-measurement grid.
+Re-running 100 seeds \emph{in 1D} at 1-tick sampling, the gated delay
+collapses to exactly 1 tick in 91 of the 97 runs in which both
+predicates latched (93.8\,\%). Three of the 100 seeds (15, 39, 44)
+never latched the Map predicate and are excluded from that denominator;
+the six remaining runs did latch both, at delays of 112, 134, 232, 318,
+383 and 634 ticks, which is what lifts the gated mean to 19.6. The
+2D 1-tick re-run covers only four seeds and is too small to quote. The
+delay is not a property of the system. It is the measurement grid.
 
 \subsection{Defect 3 --- the latch time is a definedness floor}
 
@@ -351,8 +356,11 @@ earlier draft reported 4{,}825 for the 1D figure on that basis.
 
 Meanwhile the Map statistic exceeds its threshold at median tick 1{,}400
 (1D) and 1{,}300 (2D) --- before the Clock statistic exists at all. The
-Map predicate crossed before CV was computable in 115 of 116 archived 1D
-runs and 118 of 118 2D runs.
+Map predicate crossed before CV was computable in 476 of 482 archived 1D
+runs (98.8\,\%) and 198 of 198 2D runs. The six 1D exceptions are seeds
+5, 171, 202, 219, 294 and 361. (A draft reported 115 of 116 and 118 of
+118 here: the same 120-run subset disavowed two paragraphs above,
+carried into the sentence that follows the disavowal.)
 
 We initially catalogued this as a straightforward implementation error.
 Section~\ref{sec:redesign} shows that assessment was only half correct.
@@ -538,9 +546,10 @@ of runs in which both predicates latched, which falls at large plants.}
 \centering
 \caption{Positive control. 280 runs, seven plant levels $\times$ 40
 seeds. The measured ordering flips as the plant crosses the natural
-Clock time for this configuration ($\sim$4{,}250 ticks; the archive
-median of 4{,}200 in Defect 3 is the same quantity at a different run
-length and seed count).}
+Clock time for this configuration ($\sim$4{,}625 ticks, the median
+unplanted Clock crossing over the 38 runs in which both predicates
+fired; the archive median of 4{,}200 in Defect 3 is the same quantity
+measured at a different run length and seed count).}
 \begin{tabular}{rrrr}
 \toprule
 Plant tick & Median measured Map crossing & Clock-first & Map after plant \\
@@ -558,9 +567,9 @@ Plant tick & Median measured Map crossing & Clock-first & Map after plant \\
 
 All three pre-registered criteria pass: recovery
 ($\rho = +0.9560$, required $> +0.8$; $p < 10^{-100}$, computed over
-200 runs at the cell level and quoted here only as a bound, since at
-this effect size the exact value is an artifact of the sample size
-rather than evidence about the ordering);
+the 200 runs in which both predicates fired and quoted here only as a
+bound, since at this effect size the exact value is an artifact of the
+sample size rather than evidence about the ordering);
 flip (2.6\,\% $\to$ 100\,\%, required $< 20$\,\% and $> 80$\,\%);
 and fidelity (100\,\%, required $> 90$\,\%).
 
@@ -613,15 +622,17 @@ detector and no CV estimator anywhere in the causal path. Grid: nine
 CV levels $\times$ six periods $\times$ 25 seeds = 1{,}350 runs.
 
 Only two of the six periods are physically valid: below the model's
-natural period under this forced-division configuration
-($\sim$3{,}170 ticks) forced division splits cells before they have
-grown, reaching 79.4\,\% premature splits at $T = 1600$ and 100\,\% at
-$T = 200$. (Elsewhere in this paper the natural period is given as
-$\sim$2{,}500 ticks. The two figures describe different experiments ---
-the 1D main study at 80{,}000 ticks under natural division, and this
-forced-division grid --- and are not in conflict. Every period quoted in
-this paper is configuration-specific and we label it as such from here
-on.) Within the valid window:
+natural division period ($\sim$2{,}540 ticks) forced division splits
+cells before they have grown, reaching 79.4\,\% premature splits at
+$T = 1600$ and 100\,\% at $T = 200$. (A draft gave $\sim$3{,}170 here
+and explained the discrepancy with the $\sim$2{,}500 quoted elsewhere
+as a difference of configuration. That explanation was wrong. The 3{,}170
+came from an analysis script that divides by a hard-coded 50{,}000-tick
+run length for ablation runs that were in fact executed at 40{,}000
+ticks; recomputed at the true length the same archive gives
+$\sim$2{,}540, in agreement with every other period in this paper. We
+had reconciled two numbers by inventing a distinction rather than
+checking either.) Within the valid window:
 
 \begin{table}[H]
 \centering
@@ -645,15 +656,24 @@ That monotone summary misdescribes the table it summarises. The
 response is not monotone but U-shaped: $S$ falls from 0.760 at
 $\mathrm{CV} = 0$ to a minimum of 0.664 at $\mathrm{CV} = 0.05$, then
 rises to 0.781 at $\mathrm{CV} = 1.0$. The perfectly regular condition
-is the second-\emph{highest} in the row, not the lowest, so a rank
+is the third-\emph{highest} of the nine, not the lowest --- behind
+$\mathrm{CV} = 1.0$ (0.781) and $\mathrm{CV} = 0.8$ (0.773) --- so a rank
 correlation computed across the whole range averages a decrease and an
-increase and reports the net. We flag this rather than resolve it: the
-$\mathrm{CV} = 0$ point is also the condition with 27.3\,\% extinction
-(\S\ref{sec:survives}), so the surviving runs there are a survivorship-
-filtered subpopulation and the point is not comparable to its
-neighbours on equal terms. The honest statement is that imposed
-regularity does not raise stability anywhere in this grid, and that the
-single number $+0.2196$ should not be read as a dose--response.
+increase and reports the net. We flag this rather than resolve it, and we withdraw the explanation we
+first reached for. A draft of this paragraph attributed the
+$\mathrm{CV} = 0$ point to survivorship, on the ground that
+$\mathrm{CV} = 0$ is also the condition with 27.3\,\% extinction
+(\S\ref{sec:survives}). That is wrong. The 27.3\,\% is a marginal
+over all six imposed periods and is produced entirely by
+$T \leq 800$ --- periods this table excludes as unphysical. Within the
+table's own window ($T \in \{3200, 6400\}$) there are \emph{zero}
+extinctions at every $\mathrm{CV}$ level, 0 of 50 at $\mathrm{CV} = 0$,
+and all 450 runs contribute a finite steady-state $S$. The point is not
+survivorship-filtered and we have no mechanism for it. What the data
+support is narrower: imposed regularity does not raise stability
+anywhere in this grid, and the single number $+0.2196$ should not be
+read as a dose--response. This error is recorded as entry (7) of
+\S\ref{sec:auditors}.
 
 The effect survives three of four pre-registered confound checks,
 including a matched-interval control that excludes the obvious
@@ -678,9 +698,15 @@ $\sim$1{,}350 ticks to consolidate, what should matter is the
 insofar as it produces short ones. This also predicts the flat result
 above, since raising Gamma CV adds both short and long intervals.
 
-Pre-registered and run on natural division ($n = 153{,}133$
-cell-observations): $\rho(\text{min interval}, S) = +0.3844$ pooled,
-which passes the criterion. Stratified by division count, it does not:
+Two criteria were pre-registered. $\rho(\text{min interval}, S) > +0.25$
+passes on the pooled data ($+0.3844$, $n = 153{,}133$
+cell-observations, natural division). The second --- a gap of at least
+0.15 in mean $S$ between the highest and lowest minimum-interval
+quintiles --- fails on that same pooled data before any stratification
+is applied, at $+0.1229$ (0.7825 to 0.9054). A draft mentioned only the
+first, which made the reformulation look as though stratification alone
+defeated it. Stratified by division count, the first criterion fails
+too:
 
 \begin{table}[H]
 \centering
@@ -702,11 +728,18 @@ Pooled & 153{,}133 & $\mathbf{+0.3844}$ \\
 
 Cells that barely divided have both an upward-biased minimum and an
 undisturbed high stability, so pooling manufactures the correlation. The
-pre-registered disqualifier fires, and the secondary arm (forced
-division) gives $\rho = -0.1484$ pooled, \emph{strengthening} to
-$-0.3463$ under stratification --- the mirror image, and therefore not an
-artifact. Both arms agree that longer minimum intervals do not produce
-more stable patterns.
+pre-registered disqualifier fires. The secondary arm (forced division)
+gives $\rho = -0.1484$ pooled and does not reverse under
+stratification, but we withdraw the way a draft summarised it. That
+draft reported it as ``strengthening to $-0.3463$'', which is one
+stratum (5--8 intervals, $n = 5{,}305$) holding 3.8\,\% of the arm; the
+two strata carrying 96.2\,\% do not strengthen ($-0.1871$ at
+$n = 102{,}125$ and $-0.1424$ at $n = 32{,}268$, the latter weaker than
+pooled). Quoting the most favourable stratum as the arm's result is the
+mirror of the pooling error this section is about. Stated properly:
+neither arm supports longer minimum intervals producing more stable
+patterns, and the secondary arm's association is stable but weak
+throughout.
 
 \subsection{Redesign, and what it revealed}
 \label{sec:redesign}
@@ -726,16 +759,19 @@ whatever its definedness properties.
 
 The first parameterisation failed it: with a 400-tick buffer searching
 lags of 30--200 ticks, $\rho(\mathrm{clock}_r, \mathrm{CV}) = -0.190$,
-$p = 0.241$ over 40 seeds. The division period in this configuration is
-$\sim$2{,}550 ticks and the lag window could not reach it.
+$p = 0.241$ over 40 seeds. The division period in the configuration
+that arm ran in is $\sim$2{,}625 ticks and the lag window could not
+reach it.
 
 Widening the buffer to 6{,}000 ticks --- 2.4 division periods --- does
-not fix it. Over 40 seeds that parameterisation gives
-$\rho = +0.2162$, $p = 0.186$: still the wrong sign, still
-insignificant. An earlier draft of this paper reported
-$\rho = -0.2364$ for this arm and treated it as validation. That figure
-is the first ten seeds, it was never significant ($p = 0.511$), and it
-decays to $-0.0822$ ($p = 0.614$) at $n = 40$. Quoting a correlation
+not fix it. In the 40{,}000-tick buffer sweep below, that arm gives
+$\rho = +0.2162$, $p = 0.186$: the wrong sign, and insignificant. An
+earlier draft reported $\rho = -0.2364$ for the same buffer and treated
+it as validation. That figure is the first ten seeds of a separate
+20{,}000-tick run, it was never significant ($p = 0.511$), and at the
+full 40 seeds of that run it is $-0.0822$ ($p = 0.614$). Neither run
+supports the arm; we distinguish them here because the draft quoted
+both as though they were one experiment. Quoting a correlation
 without its $p$-value to establish that an instrument works is the
 error this paper is about, committed by us, in the section documenting
 it. It is the sixth entry in \S\ref{sec:auditors}.
@@ -762,9 +798,10 @@ buys validity is also the delay it costs.}
 
 \begin{table}[H]
 \centering
-\caption{Buffer sweep, 40 seeds per arm, 40{,}000-tick runs. Validity
-requires $\rho(\mathrm{clock}_r, \mathrm{CV}) < 0$ and significant.
-Definedness equals buffer length in every arm.}
+\caption{Buffer sweep, 40 seeds per arm at 40{,}000 ticks; one seed
+went extinct in every arm, so each correlation is over $n = 39$.
+Validity requires $\rho(\mathrm{clock}_r, \mathrm{CV}) < 0$ and
+significant. The definedness column is the median.}
 \begin{tabular}{rrrrrc}
 \toprule
 Buffer & Periods & Defined at & $\rho$ & $p$ & Valid \\
@@ -777,20 +814,26 @@ Buffer & Periods & Defined at & $\rho$ & $p$ & Valid \\
 \end{tabular}
 \end{table}
 
-Two features carry the argument. \textbf{Definedness equals buffer
-length exactly}, which is an identity rather than a result:
-$\mathrm{clock}_r$ exists the moment its buffer fills. Whatever span
-validity demands is therefore also the earliest the metric can exist.
-And \textbf{the approach is not monotone} --- the 2.36-period arm has
-the wrong sign and the 4.71-period arm is flat --- so we claim no smooth
-relationship between span and validity, only that the intermediate arms
-are uninformative at $n = 40$.
+Two features carry the argument. \textbf{Definedness tracks buffer
+length}, which is near enough an identity to be treated as one:
+$\mathrm{clock}_r$ exists the moment its buffer fills. It is exact in
+194 of the 200 runs across all arms; the six exceptions are all
+\emph{upward} (6{,}850, 12{,}850, 24{,}850, 30{,}350, 33{,}600, and one
+run never defined), where a lineage died and its replacement had to
+refill from empty. The identity is therefore a lower bound, which is the
+direction that matters here: whatever span validity demands is at best
+the earliest the metric can exist. And \textbf{the approach is not
+monotone} --- the 2.36-period arm has the wrong sign and the 4.71-period
+arm is flat --- so we claim no smooth relationship between span and
+validity, only that the intermediate arms are uninformative at
+$n = 39$.
 
 The widest arm's $p = 0.016$ does not clear a Bonferroni threshold of
 $0.05/4 = 0.0125$. Since this is the paper's central claim, we re-ran
 that arm on 40 seeds it had never been evaluated on:
-$\rho = -0.4565$, $p = 0.0031$, with $\mathrm{clock}_r$ defined at tick
-24{,}000 in 40 of 40 runs. That is a single pre-specified test of a
+$\rho = -0.4565$, $p = 0.0031$, with $\mathrm{clock}_r$ defined in all
+40 runs --- at exactly tick 24{,}000 in 39 of them, and at 30{,}350 in
+the fortieth. That is a single pre-specified test of a
 directional prediction and needs no correction.
 
 \begin{table}[H]
@@ -934,8 +977,10 @@ a section which this audit has now withdrawn in its entirety.
 We consider this the most instructive part of the account, and we state
 it in full.
 
-During the audit we published six claims to the public repository that
-we subsequently withdrew. They fall into three classes.
+During the audit we published seven claims to the public repository
+that we subsequently withdrew. They fall into four classes. Six were
+found by an adversarial numeric fact-check of the draft; the seventh was
+introduced by the revision that fixed them.
 
 \textbf{Wrong reference point} (three occurrences). In each, we
 confirmed that a number reproduced without checking what it was a number
@@ -983,7 +1028,23 @@ paper's own error and the one we would least have predicted committing.
       existed nowhere but in the prose.
 \end{enumerate}
 
-A seventh case deserves separate mention, being a near-miss rather than
+\textbf{Explanation invented for an unexplained number} (one
+occurrence), committed in the revision that fixed the six above.
+\begin{enumerate}\setcounter{enumi}{6}
+\item \S\ref{sec:rescue} reports a non-monotone response of $S$ to
+      imposed regularity. Having criticised the original paper for
+      explaining an artifact with physics rather than checking
+      \texttt{len()}, we explained the awkward $\mathrm{CV} = 0$ point
+      by survivorship, citing the 27.3\,\% extinction at that
+      condition. The table excludes every period at which those
+      extinctions occur; within its own window the extinction rate is
+      zero at all nine $\mathrm{CV}$ levels. One query against the grid
+      would have shown it. We wrote the sentence instead, in the
+      paragraph whose purpose was to disclose that a summary statistic
+      had concealed the shape of the data.
+\end{enumerate}
+
+An eighth case deserves separate mention, being a near-miss rather than
 a withdrawal: a pre-registered decision rule returned the correct
 verdict for the wrong reason. Applied literally it would have preserved
 claim (4). We report it because pre-registration is frequently offered
@@ -995,7 +1056,7 @@ sufficient on its own.
 Adversarial review of claims is not a substitute for mechanical audit of
 instruments. And the auditor requires the same mechanical checks as the
 author, because the auditor is subject to the same failure --- as
-demonstrated six times above, by people actively looking for it, in a
+demonstrated seven times above, by people actively looking for it, in a
 document whose subject is that failure.
 
 Entry (6) additionally identifies the mechanism. Every one of the eight
@@ -1018,10 +1079,12 @@ Every defect documented here is mechanically detectable. We release
 \item \textbf{C1} any predicate whose latching is conditioned on another
       predicate's state
 \item \textbf{C2} any metric with a definedness floor
-\item \textbf{C3} any reported delay whose median equals the sampling
-      interval
-\item \textbf{C4} any summary reported mean-only where
-      $|\mathrm{SD}| > |\mathrm{mean}|$
+\item \textbf{C3} any reported delay whose median equals the
+      quantisation grid inferred from the delays themselves, with a
+      majority sitting exactly on it
+\item \textbf{C4} any summary reporting a mean beside an
+      $|\mathrm{SD}| > |\mathrm{mean}|$ (critical with no median
+      present, major with one)
 \item \textbf{C5} any effect-size dependent variable causally downstream
       of its grouping variable
 \item \textbf{C6} any effect size with a group of $n < 10$, or grouping
@@ -1038,11 +1101,30 @@ flags as a finding any quantity anchored on a detector output. C8 was
 added after three Simpson's paradoxes passed C1--C7 untouched.
 
 Run against this repository the tool reports 31 findings, 16 critical,
-and recovers all eight defects from source and archived data with no
-audit knowledge encoded. It independently locates the $n = 2$ comparison
-group that took three rounds of expert review and four months to notice
-by eye, and it flags precisely the two results the authors wrongly
-retained.
+and recovers \emph{six} of the eight defects --- 1, 2, 3, 4, 6 and 7 ---
+from source and archived data. It independently locates the $n = 2$
+comparison group that took three rounds of expert review and four months
+to notice by eye, and it flags precisely the two results the authors
+wrongly retained.
+
+A draft claimed all eight, which was not true and is worth stating
+plainly. Defect 5, the denominator, is not recovered: no check reads
+\texttt{results/ablations/}, because both data checks glob
+\texttt{summary.csv} and the file is named
+\texttt{ablation\_summary.csv}. Defect 8 is not recovered either. C8
+detects that \emph{class} --- it finds a genuine Simpson's paradox in
+$\rho(\text{min interval}, S)$ --- but never recomputes Defect 8's own
+quantity, $\rho(T_{\mathrm{div}}, S)$ over the lipid ablations, because
+its source globs are hard-coded elsewhere. Finding the same class of
+error in a different place is not the same as recovering the error, and
+we had counted it as such.
+
+The ``no audit knowledge encoded'' claim needs narrowing too. C6
+hard-codes the column \texttt{final\_mean\_s} and the thresholds
+0.1/0.3; C8 hard-codes its column names and stratum bins; and C7 has no
+detection logic of its own --- it reads a hand-written manifest whose
+entries already say \texttt{(DETECTOR OUTPUT)}. C1--C5 read source and
+data directly and are the checks that generalise.
 
 Three checks are regular-expression based and tuned to this codebase's
 idioms; the tool is a floor, not a ceiling.
@@ -1077,6 +1159,33 @@ skip. We recommend the general form of this for any automated check:
 \textbf{absence of evidence must be logged as loudly as evidence.}
 Restoring the two findings, and with C8's contribution, the corrected
 total is 31.
+
+\subsection{And C3 could not fail}
+
+The same fact-check found a worse one. As shipped, C3 computed its
+reference grid as \texttt{si = sample\_interval or int(med)}, and
+\texttt{sample\_interval} was \texttt{None} at every call site --- so
+the ``sampling interval'' was \emph{defined to be the median} it was
+about to be compared against. Its second clause,
+\texttt{(a <= med).mean() > 0.5}, is true of almost any sample by the
+definition of a median. The check fired on any delay column with an
+integral median, and could not return a pass.
+
+This paper's Defect 1 is a predicate that cannot emit a violation. We
+reproduced it, in the tool written to detect it, and did not notice
+because the check kept returning the answer we expected on the data we
+already knew was defective. A check is only evidence if it can come back
+negative, and we never gave it the chance.
+
+C3 now infers the quantisation grid from the delays themselves (their
+GCD) and requires the median to equal one grid step \emph{and} a
+majority to sit exactly on it --- a condition real data can fail. It
+still flags all three archived summaries at 50 ticks (90.0\,\%,
+97.5\,\%, 90.0\,\% exactly on grid). We have added
+\texttt{tools/test\_detector\_audit.py}, which supplies every check
+with input on which it is required to stay \emph{silent}. That file is
+the part of this section we would most like to see copied: an audit tool
+without negative controls is an instrument nobody has calibrated.
 
 \subsection{Why C8 generalises}
 
@@ -1134,14 +1243,31 @@ the scrutiny applied to everything else:
       What is supported is the association and its direction, nothing
       about the path.
 \item \textbf{Extinction under forced fast division.} 32.4\,\%
-      population extinction at the shortest imposed period, 8.4\,\% at
-      the next, zero at periods $\geq 1600$.
-\item \textbf{Extinction under enforced synchrony.} 27.3\,\% extinction
-      at imposed $\mathrm{CV} = 0$ versus 1.3--4.0\,\% at
-      $\mathrm{CV} \geq 0.1$. Lockstep division depletes shared resource
-      simultaneously; heterogeneity leaves some lineages off-phase when
-      the trough arrives. This is counterintuitive and, to our knowledge,
-      untested experimentally.
+      population extinction ($73/225$) at the shortest imposed period,
+      8.4\,\% at the next, zero at periods $\geq 1600$. The percentage
+      is a marginal of the $9 \times 6$ grid, averaging nine
+      $\mathrm{CV}$ levels that range from $25/25$ to $2/25$.
+\item \textbf{Extinction under enforced synchrony.} 27.3\,\%
+      extinction ($41/150$) at imposed $\mathrm{CV} = 0$ versus
+      1.3--4.0\,\% at $\mathrm{CV} \geq 0.1$. Lockstep division depletes
+      shared resource simultaneously; heterogeneity leaves some lineages
+      off-phase when the trough arrives. This is counterintuitive and,
+      to our knowledge, untested experimentally.
+
+      \emph{Both results are confined to a regime this paper calls
+      unphysical.} All 94 extinctions in the 1{,}350-run grid occur at
+      $T \leq 800$ --- the periods \S\ref{sec:rescue} excludes because
+      forced division there splits cells before they have grown. At
+      $T \geq 1600$ the extinction rate is zero at every
+      $\mathrm{CV}$ level, including $\mathrm{CV} = 0$. So the
+      synchrony effect is real but is a statement about populations
+      already being driven faster than they can grow, not about
+      synchrony at viable division rates. We keep both as survivors
+      because the arithmetic holds and the effect is a genuine feature
+      of the model under stress; we do not claim either bears on
+      protocells dividing at sustainable rates. Reported without this
+      scope, the synchrony result would be the most misleading sentence
+      in the paper.
 \end{itemize}
 
 \noindent
@@ -1209,7 +1335,7 @@ correctable, only because its code was published.
 \subsection{Cost}
 
 The audit consumed roughly four months of intermittent effort. The tool
-that recovers all eight defects runs in under a second. Most of the four
+that recovers six of them runs in under a second. Most of the four
 months was spent discovering \emph{which} checks to write; running them
 is free.
 
