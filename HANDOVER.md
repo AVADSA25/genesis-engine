@@ -1,4 +1,4 @@
-# Genesis Engine — HANDOVER (2 Aug 2026)
+# Genesis Engine — HANDOVER (3 Aug 2026)
 
 ## STATE: audit complete, correction drafted, NOT POSTED
 
@@ -32,8 +32,8 @@ Corrected figure: **Clock precedes Map in ~1% of runs.**
 5. Denominator double-counted the shared OAT baseline: 1,845 -> 1,554
 6. Effect sizes invalid three ways — circular DV, an n=2 arm in 2D, and
    a "combined" g = 6.34 that is just (9.41+3.27)/2
-7. Gate dependence systematic — 7 of 19 quantities; all four sec 5.3
-   results withdrawn or demoted
+7. Gate dependence systematic — 9 of 19 quantities directly, a 10th
+   indirectly; all four sec 5.3 results withdrawn or demoted
 8. rho(T_div,S) = +0.43 has the WRONG SIGN (-0.60 to -0.75 stratified)
 
 ---
@@ -46,7 +46,9 @@ Asking "which metric crosses first" compares a slow periodic process
 (division regularity, ~2,500 ticks, needs several periods to measure)
 against a fast field process (spatial correlation, ~40 ticks, measurable
 by ~150). A Clock metric built to have NO definedness floor came out
-defined at tick 6,000 — LATER than the one it replaced.
+defined at tick 6,000 — LATER than the one it replaced. The buffer
+sweep then showed it was not even a valid metric until ~9 periods
+(24,000 ticks), so the honest figure is 160x, not 40x.
 
 Time-frequency constraint, not an implementation error. No simulation
 redesign removes it. **Defect 3 is only half ours.**
@@ -61,10 +63,13 @@ found no support for the theory.
 
 - sec 5.2 generalization argument (S measures persistence, not Turing)
 - Timescale anchor: 15.8-38.3 min, brackets E. coli, fixed a priori
-- ONE lipid-supply result, two measures: higher supply -> faster
-  division -> lower pattern stability (S 0.823 -> 0.644)
+- ONE lipid-supply result, two measures: higher supply -> lower pattern
+  stability (S 0.823 -> 0.644). MECHANISM NOT IDENTIFIED — the
+  'via faster division' chain is refuted by the stratified data.
 - Extinction findings: 32.4% at T=200, zero at T>=1600; and 27.3% at
   CV=0 vs <=4% at CV>=0.1 (lockstep division starves whole populations)
+  — BOTH confined to imposed periods <=800, which the model treats as
+  unphysical. Zero extinctions anywhere at T>=1600.
 - 1D dCV (-0.222) and Phase-E (+0.147) as ARITHMETIC ONLY
 - The measurement itself is validated: planting a known ordering,
   rho = +0.96 recovery, Clock-first 2.6% -> 100%
@@ -73,8 +78,10 @@ found no support for the theory.
 
 ## MY OWN ERRORS, PUBLISHED TO THIS REPO AND LATER WITHDRAWN
 
-Five, in two classes. All are in the repo history and in sec 6.3 of the
-rewrite scaffold.
+SEVEN, in four classes. All are in the repo history and in sec 6.3 of
+the paper. (6) validating clock_r by eye from an insignificant
+correlation; (7) inventing a survivorship explanation refuted by the
+same grid. Both were found only by re-running with saved outputs.
 
 WRONG REFERENCE POINT (x3) — confirmed a number reproduced without
 checking what it was a number OF:
@@ -112,10 +119,11 @@ WRONG reason (Task R), which is its own failure mode.
 
 ## TOOLS PRODUCED
 
-`tools/detector_audit.py` — 8 checks, catches all 8 defects from source
-with no audit knowledge encoded. 30 findings, 15 critical on this repo.
-C7 (reference points) and C8 (pooled-vs-stratified) were added because
-C1-C6 missed the errors I made myself.
+`tools/detector_audit.py` — 8 checks. 31 findings, 16 critical on this
+repo. Recovers SIX of the 8 defects (not all 8 — see final audit round
+below). C7 and C8 were added because C1-C6 missed my own errors.
+`tools/test_detector_audit.py` — negative controls, 5/5. Run these
+before trusting any audit count; C3 shipped unfalsifiable.
 
 `paper/v6_supplement/LAB_PROTOCOL.md` — 5 wet-lab experiments, one
 counterintuitive (synchrony fragility), one that can settle the ordering
