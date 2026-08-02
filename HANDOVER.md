@@ -150,9 +150,46 @@ ticks -> `results_v6/taskS_buffer_sweep.csv`) to establish whether
 validity is reachable at ANY buffer length. Sample count held at 120 so
 only span varies — a curve, not a search for a length that works.
 
+## FINAL AUDIT ROUND (3 Aug 2026) -- 22 MORE ERRORS
+
+An adversarial fact-check of the revised draft checked 196 numeric
+claims and confirmed 22 errors; 6 alleged ones were dismissed on
+verification. Several were introduced by the revision that fixed the
+previous round. All 22 applied; paper recompiles at 27pp.
+
+Two worth remembering:
+
+C3 COULD NOT FAIL. `si = sample_interval or int(med)` with
+sample_interval always None => the grid was defined to be the median,
+and the second clause is true by the definition of a median. The check
+fired on any integral median and could never pass. That is Defect 1
+(a predicate that cannot emit a violation) reproduced inside the tool
+built to detect it. Fixed: grid now inferred as the GCD of delays,
+median must equal one step with a majority exactly on it. Negative
+controls added in tools/test_detector_audit.py -- 5/5. RUN THEM.
+
+INVENTED MECHANISM. The revision explained the non-monotone S(CV) point
+by survivorship, citing 27.3% extinction at CV=0. That table excludes
+every period where those extinctions happen; in its own window
+extinction is 0/675. Entry (7) of section 6.3 now.
+
+Also: the tool recovers SIX of eight defects, not all eight -- no check
+reads results/ablations/ (both data checks glob "summary.csv", the file
+is "ablation_summary.csv"), and C8 finds Defect 8's class on a different
+quantity. If you want 8/8, add a check that reads the ablation summary
+and recomputes rho(T_div,S) over the lipid strata. NOT done here: adding
+checks changes the tool's described identity and was not asked for.
+
+The ~3,170 "natural period" was an artifact of a hardcoded 50,000-tick
+divisor applied to 40,000-tick runs. The earlier "different
+configurations" reconciliation was itself invented; both figures are
+~2,540.
+
 ## NEXT STEPS
 
-1. Post the SSRN correction (yours)
+1. Post the SSRN correction (yours) -- CORRECTION_NOTE_FINAL.md is now
+   consistent with the revised paper (sweep result, ~2,540 period,
+   extinction scope). It was NOT consistent before this round.
 2. Write the methods paper from `taskE_rewrite_scaffold.md` — target
    Artificial Life (MIT Press)
 3. Consider promoting detector_audit.py to a CODEC skill (caveat:

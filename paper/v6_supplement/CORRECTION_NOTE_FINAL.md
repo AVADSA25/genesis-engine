@@ -27,9 +27,10 @@ organization (Map) in 1,845/1,845 runs (100%), binomial
    archive. A later experiment showed this is only half an error: the
    *specific* four-division floor is ours, but a floor of order several
    division periods is **physical** — measuring the regularity of a
-   process whose period is ~2,525 ticks (1D main study) requires
-   observing several of those periods, while the spatial metric is
-   defined by ~150 ticks. See below.
+   process whose period is ~2,540 ticks requires observing several of
+   those periods, while the spatial metric is defined by ~150 ticks.
+   Measured: such a metric needs ~9 periods before it tracks regularity
+   at all. See below.
 4. **The mean delay is three runs.** 243 ± 2,319 ticks is carried by
    seeds 171, 294, 361 (69.0% of delay mass); excluding them, 75.7.
    `paper_data.json` already held `median = 50.0` beside the mean.
@@ -83,14 +84,20 @@ by that experiment.
 
 **The original question is malformed as posed.** Asking which metric
 crosses its threshold first compares a slow periodic process (division
-regularity, period ~2,500 ticks, requiring several periods to measure at
+regularity, period ~2,540 ticks, requiring several periods to measure at
 all) against a fast field process (spatial correlation, ~40 ticks,
 measurable by ~150). An attempt to build a Clock metric with no
-definedness floor produced one defined at tick 6,000 — *later* than the
-metric it was built to replace. This is a time-frequency constraint, not
-an implementation choice, and no simulation redesign removes it.
-Ordering claims of this kind must be tested by **intervention**, which
-is what the imposed-regularity experiment above did.
+definedness floor failed twice over. A buffer sweep (four spans, 40
+seeds each) shows the replacement does not track division regularity at
+all until its history spans ~9 periods (ρ = −0.46, p = 0.003 on 40
+held-out seeds; shorter spans are indistinguishable from zero and one
+has the wrong sign). Because the metric becomes defined exactly when its
+buffer fills, the earliest a *valid* Clock reading can exist is ~24,000
+ticks — against a spatial metric defined by ~150, a factor of 160. This
+is a time-frequency constraint, not an implementation choice, and no
+simulation redesign removes it. Ordering claims of this kind must be
+tested by **intervention**, which is what the imposed-regularity
+experiment above did.
 
 **Also withdrawn:** the Damköhler framing (τ_pattern was the sampling
 interval) and the 2D back-reaction (*p* = 0.427). A v5.1c figure of
@@ -99,8 +106,10 @@ interval) and the 2D back-reaction (*p* = 0.427). A v5.1c figure of
 **What stands:** §5.2's generalization argument; the 1D Δ-CV (−0.222) and
 Phase-E differential (+0.147), as arithmetic only; the timescale anchor
 (15.8–38.3 min, bracketing *E. coli*, fixed a priori); extinction under
-forced fast division (32.4% at T=200, zero at T ≥ 1600; 27.3% at CV=0 vs
-≤4% at CV ≥ 0.1); and **one** lipid-supply result confirmed by two
+forced fast division (32.4% at T=200, zero at T ≥ 1600; 27.3% at CV=0
+vs ≤4% at CV ≥ 0.1) — **both confined to imposed periods ≤800, which
+this model treats as unphysical; at sustainable rates extinction is zero
+at every CV**; and **one** lipid-supply result confirmed by two
 measures — higher supply → lower pattern stability, seen as final *S*
 0.823 → 0.644 and restated in thresholded form by Phase-D attainment.
 The **mechanism is not identified**: an earlier draft of this note
