@@ -60,7 +60,7 @@ Eight Measurement Artifacts, and a Question\\
 That Cannot Be Asked This Way}}
 \author{%
   Micka\"el Farina\\
-  \small AVA Digital L.L.C., 1603 Capitol Ave Ste 415 \#258343, Cheyenne, WY 82001, USA\\
+  \small Independent Researcher, Marbella, Spain\\
   \small \href{mailto:mikarina@avadigital.ai}{\texttt{mikarina@avadigital.ai}}
 }
 \date{\small Preprint \textperiodcentered\ August 2026}
@@ -91,18 +91,25 @@ planted sweep), so that the corrected figure --- the ordering holds in
 $\approx$1\,\% of runs --- is a measurement rather than a blind spot.
 Three attempts to rescue the hypothesis follow. The third is the
 result: a Clock metric constructed specifically to have no definedness
-floor becomes defined \emph{later} than the metric it replaces, because
-measuring the regularity of a $\sim$2{,}500-tick periodic process
-requires observing several of its periods, whereas spatial correlation
-over a $\sim$40-tick field is measurable within $\sim$150. The
-asymmetry that produced the original artifact is therefore partly a
+floor becomes defined \emph{later} than the metric it replaces. A
+buffer sweep shows why. The replacement only measures regularity at all
+once its history spans $\sim$9 division periods ($\rho = -0.46$,
+$p = 0.003$ out of sample; shorter buffers return the wrong sign), and
+its definedness time equals that buffer length identically --- so the
+earliest a valid Clock reading can exist is $\sim$24{,}000 ticks,
+against a spatial metric defined by $\sim$150. Measuring the regularity
+of a slow periodic process requires observing several of its periods;
+measuring correlation in a fast field does not. The asymmetry that
+produced the original artifact is therefore substantially a
 time--frequency constraint rather than an implementation error, and the
 ordering question is malformed as posed: comparing first-crossing times
 measures the ratio of two intrinsic timescales, not the dynamics.
 Ordering claims of this kind must be tested by intervention instead. We
 release an automated checklist that recovers all eight defects from
-source, and record that its authors reproduced the same class of error
-five times while writing this paper.
+source, and record that its authors committed the same class of error
+six times while writing this paper --- the last of them an instrument
+validated by eye from an insignificant correlation, in the section
+arguing that unvalidated instruments are worthless.
 
 \vspace{6pt}
 \noindent\textbf{Keywords:} artificial life; protocell models;
@@ -170,10 +177,30 @@ for.
 \item \texttt{detector\_audit.py}, an eight-check runner that recovers
       all eight defects from source and archived data with no audit
       knowledge encoded.
-\item A record of five errors of the same class committed by the
+\item A record of six errors of the same class committed by the
       authors \emph{during} the audit, which we take to be the most
       instructive part of the account.
 \end{enumerate}
+
+\subsection{Status of the original paper}
+
+The original preprint (SSRN 6593781, April 2026) remains posted with a
+correction notice attached rather than being removed. We took that
+decision deliberately. The paper's data and code are the evidence for
+this one, the defects are only legible against the original text, and
+silent withdrawal would leave the eleven months in which the claim
+circulated unaccounted for. The correction notice withdraws the central
+result explicitly and in full, lists all eight defects with corrected
+figures, and links to the audit materials. Readers arriving at the
+original by citation reach the correction before the abstract.
+
+Two companion papers cannot be treated the same way. Neither the
+Vesicle Division nor the Engine study has surviving source code on any
+machine we control, so their headline figures --- a division-interval
+$\mathrm{CV} = 0.06$ and an effect size $g = 4.07$ --- cannot be checked
+for the circularity documented here. We do not assert those results are
+wrong. We report that we are unable to verify them, which given what
+follows we consider the more useful statement.
 
 % ════════════════════════════════════════════════════════════════════
 \section{The model and the original claim}
@@ -277,8 +304,10 @@ interquartile range is $[50, 50]$ --- zero width. In 1D, 434 of 482 runs
 (97.5\,\%). Fifty ticks was the sampling interval.
 
 Re-running 100 seeds at 1-tick sampling, the gated delay collapses to
-exactly 1 tick in 93.8\,\% of runs. The delay is not a property of the
-system. It is the measurement grid.
+exactly 1 tick in 91 of the 97 runs in which both predicates latched
+(93.8\,\%; in the remaining three seeds the Map predicate never
+latched). The delay is not a property of the system. It is the
+measurement grid.
 
 \subsection{Defect 3 --- the latch time is a definedness floor}
 
@@ -291,16 +320,25 @@ whatever the dynamics do.
 \begin{table}[H]
 \centering
 \caption{The reported Clock latch coincides with the tick at which the
-Clock statistic first becomes computable. Medians over archived runs.}
+Clock statistic first becomes computable. Medians over the full
+archive ($n = 500$ in 1D, $n = 200$ in 2D).}
 \begin{tabular}{lrr}
 \toprule
 & First tick CV computable & Reported Clock latch \\
 \midrule
-1D & 4{,}250 & 4{,}250 \\
-2D & 4{,}950 & 4{,}975 \\
+1D & 4{,}200 & 4{,}200 \\
+2D & 4{,}900 & 4{,}900 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+An earlier draft reported 4{,}250/4{,}250 and 4{,}950/4{,}975 here.
+Those were medians over a 120-run subset; the figures above are the full
+archive. The agreement is exact in both geometries at full $n$. All such
+medians lie on a 50-tick grid, because 50 ticks is the sampling
+interval; a median quoted off that grid is an average of two adjacent
+grid points across an even number of runs, not an observation. An
+earlier draft reported 4{,}825 for the 1D figure on that basis.
 
 Meanwhile the Map statistic exceeds its threshold at median tick 1{,}400
 (1D) and 1{,}300 (2D) --- before the Clock statistic exists at all. The
@@ -333,11 +371,14 @@ The ablation is one-at-a-time: four parameters at three levels each,
 where one level of each sweep \emph{is} the baseline. Reporting the
 shared baseline in all four rows is standard practice and is not the
 error. The error was summing all twelve rows to obtain a total. All four
-baseline rows are identical to the last decimal place (mean B tick
-4416.0; mean C tick 4518.556701030928; mean final $S$ 0.7521093934), so
-291 runs are counted three times over.
+baseline rows are identical to the last decimal place --- mean B tick
+4416.0, mean C tick 4518.556701030928, mean final $S$
+0.7521093934657955 --- because they are the same 97 runs. Counted once
+per parameter sweep, those 97 runs enter the total four times instead of
+once, contributing $97 \times 3 = 291$ redundant counts.
 
-Distinct runs: \textbf{1{,}554}, not 1{,}845.
+Distinct runs: $1{,}165 - 291 = 874$ from the ablation, so
+$482 + 874 + 198 = \textbf{1{,}554}$, not 1{,}845.
 
 \subsection{Defect 6 --- the effect sizes, and the story told about them}
 \label{sec:effectsize}
@@ -387,7 +428,8 @@ the original manuscript.
 \subsection{Defect 7 --- gate dependence is systematic}
 
 Auditing all nineteen reported quantities by tracing each computation
-path in source, seven depend on detector outputs. Phase-D success rates
+path in source, nine depend directly on detector outputs and a tenth
+depends on one indirectly. Phase-D success rates
 (90\,\% versus 79\,\% across lipid supply) are withdrawn as rates,
 because they count a latched state whose latch time is set by the
 definedness floor. Only the \emph{direction} of the difference survives,
@@ -412,6 +454,7 @@ was $\rho = +0.43$ pooled across lipid conditions. Stratified:
 \begin{table}[H]
 \centering
 \caption{A Simpson's paradox. Pooling reverses the sign.}
+\label{tab:simpson}
 \begin{tabular}{lrr}
 \toprule
 Stratum & $n$ & $\rho(T_{\mathrm{div}}, S)$ \\
@@ -432,13 +475,19 @@ across conditions; within a fixed supply, slower-dividing runs reach
 \subsection{The corrected figure}
 
 Measured without the gate, the Clock precedes the Map in approximately
-1\,\% of runs: 1.0\,\% by 1-tick resampling ($N = 100$), 0.7\,\% by a
-threshold grid over archived timeseries ($N = 150$), and 0.0\,\% in 2D
-across all nine cells of a $3 \times 3$ threshold grid. Two independent
-methods, in close agreement.
+1\,\% of runs: $1/97 = 1.0$\,\% by 1-tick resampling (100 seeds, of
+which 97 latched both predicates), 0.7\,\% by a threshold grid over
+archived timeseries ($n = 150$), and 0.0\,\% in 2D across all nine cells
+of a $3 \times 3$ threshold grid. Two independent methods, in close
+agreement.
+
+We note that the 97 here and the 97 baseline runs of Defect 5 are an
+arithmetic coincidence of two unrelated experiments, not the same
+quantity.
 
 % ════════════════════════════════════════════════════════════════════
 \section{Validating the corrected instrument}
+\label{sec:validate}
 
 \subsection{Why a null from an unvalidated instrument is worthless}
 
@@ -464,7 +513,9 @@ division regularity would inherit the very floor under test.
 \centering
 \caption{Positive control. 280 runs, seven plant levels $\times$ 40
 seeds. The measured ordering flips as the plant crosses the natural
-Clock time ($\sim$4{,}250 ticks).}
+Clock time for this configuration ($\sim$4{,}250 ticks; the archive
+median of 4{,}200 in Defect 3 is the same quantity at a different run
+length and seed count).}
 \begin{tabular}{rrrr}
 \toprule
 Plant tick & Median measured Map crossing & Clock-first & Map after plant \\
@@ -481,7 +532,10 @@ Plant tick & Median measured Map crossing & Clock-first & Map after plant \\
 \end{table}
 
 All three pre-registered criteria pass: recovery
-($\rho = +0.9560$, $p = 2.3 \times 10^{-107}$, required $> +0.8$);
+($\rho = +0.9560$, required $> +0.8$; $p < 10^{-100}$, computed over
+200 runs at the cell level and quoted here only as a bound, since at
+this effect size the exact value is an artifact of the sample size
+rather than evidence about the ordering);
 flip (2.6\,\% $\to$ 100\,\%, required $< 20$\,\% and $> 80$\,\%);
 and fidelity (100\,\%, required $> 90$\,\%).
 
@@ -494,14 +548,26 @@ also disposes of the obvious objection --- that the method is biased
 toward Map-first --- since planting the ordering flips it to 100\,\%
 Clock-first without hesitation.
 
-Two caveats belong in the record. Runs in which both predicates fired
+Three caveats belong in the record. Runs in which both predicates fired
 fall from 38/40 at no plant to 17/40 at the largest plant, because
 larger plants leave less run time for stability to recover; the
-recovery correlation therefore rests on 200 of 280 runs. And the plant
+recovery correlation therefore rests on 200 of 280 runs. The plant
 is not perfectly orthogonal: suppressing $S$ also suppresses the
 $S$-linked metabolic bonuses, shifting division dynamics. Ordering is
 consequently judged within each run on that run's own two crossings,
 never against an assumed Clock time.
+
+The third caveat bounds what the control licenses. It plants
+\emph{Clock-before-Map} by delaying the Map, and demonstrates recovery
+in that direction only. We did not run the mirror experiment --- an
+accelerated Clock, or a delayed Clock against an undisturbed Map ---
+because the Clock statistic's definedness floor is precisely the
+quantity under investigation, so any plant acting on it would be
+confounded with the effect being measured. The control therefore
+establishes that the method is not blind to Clock-first orderings when
+they exist. It does not establish symmetric sensitivity, and the
+$\approx$1\,\% figure should be read as an upper bound on our ability to
+detect Clock-first rather than as a two-sided measurement.
 
 % ════════════════════════════════════════════════════════════════════
 \section{Three attempts to rescue the hypothesis}
@@ -522,9 +588,15 @@ detector and no CV estimator anywhere in the causal path. Grid: nine
 CV levels $\times$ six periods $\times$ 25 seeds = 1{,}350 runs.
 
 Only two of the six periods are physically valid: below the model's
-natural period ($\sim$3{,}170 ticks) forced division splits cells
-before they have grown, reaching 79.4\,\% premature splits at $T = 1600$
-and 100\,\% at $T = 200$. Within the valid window:
+natural period under this forced-division configuration
+($\sim$3{,}170 ticks) forced division splits cells before they have
+grown, reaching 79.4\,\% premature splits at $T = 1600$ and 100\,\% at
+$T = 200$. (Elsewhere in this paper the natural period is given as
+$\sim$2{,}500 ticks. The two figures describe different experiments ---
+the 1D main study at 80{,}000 ticks under natural division, and this
+forced-division grid --- and are not in conflict. Every period quoted in
+this paper is configuration-specific and we label it as such from here
+on.) Within the valid window:
 
 \begin{table}[H]
 \centering
@@ -543,6 +615,20 @@ $\rho(\mathrm{CV}, S) = +0.2196$ ($p = 2.6 \times 10^{-6}$): stability
 \emph{rises} with irregularity, opposite to prediction. A one-sided
 Mann--Whitney test of the hypothesis' own direction (regular
 $>$ irregular) returns $p = 1.0$.
+
+That monotone summary misdescribes the table it summarises. The
+response is not monotone but U-shaped: $S$ falls from 0.760 at
+$\mathrm{CV} = 0$ to a minimum of 0.664 at $\mathrm{CV} = 0.05$, then
+rises to 0.781 at $\mathrm{CV} = 1.0$. The perfectly regular condition
+is the second-\emph{highest} in the row, not the lowest, so a rank
+correlation computed across the whole range averages a decrease and an
+increase and reports the net. We flag this rather than resolve it: the
+$\mathrm{CV} = 0$ point is also the condition with 27.3\,\% extinction
+(\S\ref{sec:survives}), so the surviving runs there are a survivorship-
+filtered subpopulation and the point is not comparable to its
+neighbours on equal terms. The honest statement is that imposed
+regularity does not raise stability anywhere in this grid, and that the
+single number $+0.2196$ should not be read as a dose--response.
 
 The effect survives three of four pre-registered confound checks,
 including a matched-interval control that excludes the obvious
@@ -607,34 +693,97 @@ own radius trajectory. A regularly dividing cell traces a sawtooth that
 autocorrelates strongly at its period; an irregular one weakly. It
 requires no divisions and is defined as soon as its buffer fills.
 
-The first parameterisation was disqualified on a validity check before
-being used: with a 400-tick buffer searching lags of 30--200 ticks, it
-gave $\rho(\text{clock}_r, \mathrm{CV}) = +0.042$, $p = 0.897$. It was
-not measuring regularity at all --- the measured division period is
-$\sim$2{,}495 ticks, and the lag window could not reach it.
+Any such metric must first pass a validity check: $\mathrm{clock}_r$
+must correlate \emph{negatively} with CV across runs, since a more
+regular divider should show both higher autocorrelation and lower
+interval variance. A metric failing this is not measuring regularity,
+whatever its definedness properties.
 
-Widening the buffer to span the division period gives a valid metric.
-It also gives this:
+The first parameterisation failed it: with a 400-tick buffer searching
+lags of 30--200 ticks, $\rho(\mathrm{clock}_r, \mathrm{CV}) = -0.190$,
+$p = 0.241$ over 40 seeds. The division period in this configuration is
+$\sim$2{,}550 ticks and the lag window could not reach it.
+
+Widening the buffer to 6{,}000 ticks --- 2.4 division periods --- does
+not fix it. Over 40 seeds that parameterisation gives
+$\rho = +0.2162$, $p = 0.186$: still the wrong sign, still
+insignificant. An earlier draft of this paper reported
+$\rho = -0.2364$ for this arm and treated it as validation. That figure
+is the first ten seeds, it was never significant ($p = 0.511$), and it
+decays to $-0.0822$ ($p = 0.614$) at $n = 40$. Quoting a correlation
+without its $p$-value to establish that an instrument works is the
+error this paper is about, committed by us, in the section documenting
+it. It is the sixth entry in \S\ref{sec:auditors}.
+
+We therefore swept the buffer to ask whether \emph{any} span yields a
+valid metric, holding the sample count fixed at 120 so that only the
+span varies and reporting all four arms rather than stopping at the
+first that passed.
 
 \begin{table}[H]
 \centering
-\caption{Definedness times, medians over 10 seeds. The replacement
-metric is defined later than the metric it was built to replace.}
+\caption{Buffer sweep, 40 seeds per arm, 40{,}000-tick runs. Validity
+requires $\rho(\mathrm{clock}_r, \mathrm{CV}) < 0$ and significant.
+Definedness equals buffer length in every arm.}
+\begin{tabular}{rrrrrc}
+\toprule
+Buffer & Periods & Defined at & $\rho$ & $p$ & Valid \\
+\midrule
+1{,}200  & 0.47 & 1{,}200  & $-0.0354$ & 0.831 & no \\
+6{,}000  & 2.36 & 6{,}000  & $+0.2162$ & 0.186 & no \\
+12{,}000 & 4.71 & 12{,}000 & $-0.0245$ & 0.882 & no \\
+24{,}000 & 9.43 & 24{,}000 & $\mathbf{-0.3822}$ & 0.016 & yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two features carry the argument. \textbf{Definedness equals buffer
+length exactly}, which is an identity rather than a result:
+$\mathrm{clock}_r$ exists the moment its buffer fills. Whatever span
+validity demands is therefore also the earliest the metric can exist.
+And \textbf{the approach is not monotone} --- the 2.36-period arm has
+the wrong sign and the 4.71-period arm is flat --- so we claim no smooth
+relationship between span and validity, only that the intermediate arms
+are uninformative at $n = 40$.
+
+The widest arm's $p = 0.016$ does not clear a Bonferroni threshold of
+$0.05/4 = 0.0125$. Since this is the paper's central claim, we re-ran
+that arm on 40 seeds it had never been evaluated on:
+$\rho = -0.4565$, $p = 0.0031$, with $\mathrm{clock}_r$ defined at tick
+24{,}000 in 40 of 40 runs. That is a single pre-specified test of a
+directional prediction and needs no correction.
+
+\begin{table}[H]
+\centering
+\caption{Definedness of each metric, medians. The replacement metric,
+in the only parameterisation shown to measure anything, is defined
+$160\times$ later than the metric whose floor it was built to remove.}
 \begin{tabular}{lrr}
 \toprule
 Metric & Defined at tick & Ratio to $S$ \\
 \midrule
 $S$ (Map) --- spatial correlation & 150 & --- \\
-CV (original Clock) & 4{,}825 & $32\times$ \\
-$\mathrm{clock}_r$ (replacement) & \textbf{6{,}000} & $\mathbf{40\times}$ \\
+CV (original Clock) & 4{,}450 & $30\times$ \\
+$\mathrm{clock}_r$, \emph{valid} parameterisation
+  & \textbf{24{,}000} & $\mathbf{160\times}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 The pre-registered symmetry criterion required agreement within 20\,\%.
-The observed ratio is $40\times$. The redesign made the asymmetry worse
-than the problem it was built to solve, and per the pre-registered
+The observed ratio is $160\times$. The redesign did not merely fail to
+remove the definedness floor it was built to remove; made valid, it
+raised that floor by a further factor of five. Per the pre-registered
 decision rule the downstream tests were not computed.
+
+One property of the valid measurement must be stated rather than left
+to be discovered. A 24{,}000-tick buffer is filled only by cells that
+have lived 24{,}000 ticks, and daughters begin with an empty buffer
+while mothers retain theirs, so $\mathrm{clock}_r$ is an average over an
+age-selected subpopulation. This does not rescue the metric. A cell too
+young to have a full buffer is exactly a cell whose period has not yet
+been observed; the selection restates the constraint rather than
+concealing it.
 
 \subsection{The finding}
 
@@ -642,17 +791,31 @@ The redesign could not have worked, for a reason that has nothing to do
 with implementation.
 
 \textbf{To measure how regular a periodic process is, one must observe
-several of its periods.} This is a time--frequency constraint. Every
-candidate Clock metric inherits it: the CV of division intervals needs
-four divisions; a radius autocorrelation needs at least two periods;
-any per-cell regularity measure needs several periods of the process it
-describes. Meanwhile $S$ measures spatial correlation of a
-reaction--diffusion field whose intrinsic correlation time is
-$\sim$40 ticks, and is defined by $\sim$150.
+several of its periods.} This is a time--frequency constraint, and it
+is not specific to either estimator we tried. The CV of division
+intervals needs four divisions. A radius autocorrelation, measured
+here, needed $\sim$9 periods before it tracked regularity at all ---
+two were not enough.
 
-The $\sim$4{,}000-tick asymmetry is therefore set by the ratio of the
-two phenomena's intrinsic timescales --- a slow periodic process against
-a fast field process --- and not by any choice we made.
+We state the scope of this claim carefully, because the obvious
+objection is a good one. It applies to \emph{per-lineage} regularity
+statistics: any quantity asking how evenly spaced one cell's events are
+must wait for several of that cell's events. It does \emph{not} follow
+that no Clock-like quantity can ever be defined early. A
+\emph{cross-sectional} measure --- the dispersion of division phase
+across a population at one instant --- is defined after roughly one
+period rather than several, and we have not tested one. Our claim is
+therefore bounded: the floor for per-lineage regularity is of order
+several division periods, which for this model is $\sim$24{,}000 ticks
+against $S$ at $\sim$150; whether a population-level phase statistic
+narrows that gap is open, and we regard it as the most promising line
+for anyone wishing to salvage a timing-based approach.
+
+Meanwhile $S$ measures spatial correlation of a reaction--diffusion
+field whose intrinsic correlation time is $\sim$40 ticks, and is
+defined by $\sim$150. The asymmetry is therefore set by the ratio of
+the two phenomena's intrinsic timescales --- a slow periodic process
+against a fast field process --- and not by any choice we made.
 
 \textbf{Defect 3 is consequently only half an error.} The specific
 four-division floor is ours and could be loosened. The existence of a
@@ -724,12 +887,13 @@ argument for a result that did not exist. The most thorough round added
 a section which this audit has now withdrawn in its entirety.
 
 \subsection{The auditors repeated the failure}
+\label{sec:auditors}
 
 We consider this the most instructive part of the account, and we state
 it in full.
 
-During the audit we published five claims to the public repository that
-we subsequently withdrew. They fall into two classes.
+During the audit we published six claims to the public repository that
+we subsequently withdrew. They fall into three classes.
 
 \textbf{Wrong reference point} (three occurrences). In each, we
 confirmed that a number reproduced without checking what it was a number
@@ -759,18 +923,48 @@ generalised past its domain.
       that contrasted an unphysical condition against a physical one.
 \end{enumerate}
 
-A sixth case deserves separate mention: a pre-registered decision rule
-returned the correct verdict for the wrong reason. Applied literally it
-would have preserved claim (4). We report it because pre-registration is
-frequently offered as a remedy for exactly this failure mode, and here it
-was not sufficient on its own.
+\textbf{Unvalidated instrument} (one occurrence), which is the original
+paper's own error and the one we would least have predicted committing.
+\begin{enumerate}\setcounter{enumi}{5}
+\item In \S\ref{sec:redesign} we reported
+      $\rho(\mathrm{clock}_r, \mathrm{CV}) = -0.2364$ as establishing
+      that the redesigned Clock metric measured regularity, and built
+      the section's conclusion on it. We did not quote its $p$-value,
+      which was 0.511. The figure was ten seeds; at forty it is
+      $-0.0822$ ($p = 0.614$), and the parameterisation fails the
+      validity check outright. We had written a section arguing that
+      nulls from unvalidated instruments are worthless
+      (\S\ref{sec:validate}) and then, four subsections later, validated
+      an instrument by eye from an insignificant correlation. The error
+      was caught only when the experiment was re-run with saved outputs,
+      because the original had been executed inline and its numbers
+      existed nowhere but in the prose.
+\end{enumerate}
+
+A seventh case deserves separate mention, being a near-miss rather than
+a withdrawal: a pre-registered decision rule returned the correct
+verdict for the wrong reason. Applied literally it would have preserved
+claim (4). We report it because pre-registration is frequently offered
+as a remedy for exactly this failure mode, and here it was not
+sufficient on its own.
 
 \subsection{Implication}
 
 Adversarial review of claims is not a substitute for mechanical audit of
 instruments. And the auditor requires the same mechanical checks as the
 author, because the auditor is subject to the same failure --- as
-demonstrated five times above, by people actively looking for it.
+demonstrated six times above, by people actively looking for it, in a
+document whose subject is that failure.
+
+Entry (6) additionally identifies the mechanism. Every one of the eight
+original defects, and five of our six, survived because a number was
+inspected without its provenance. The countermeasure that actually
+worked was not vigilance but a file: the error was found when the
+experiment was re-run as a script that wrote its outputs to disk, at
+which point the correlation could be recomputed at a larger $n$ by
+anyone, including us. Numbers that exist only in prose cannot be
+audited, and we had
+several.
 
 % ════════════════════════════════════════════════════════════════════
 \section{An automated checklist}
@@ -827,6 +1021,7 @@ transferable technical result in the paper.
 
 % ════════════════════════════════════════════════════════════════════
 \section{What survives}
+\label{sec:survives}
 
 The following results are unaffected by the audit and are reported with
 the scrutiny applied to everything else:
@@ -845,12 +1040,25 @@ the scrutiny applied to everything else:
       published fatty-acid vesicle division times. The anchor was set
       without reference to the division data, so the agreement is a
       check rather than a fit.
-\item \textbf{One lipid-supply result, measured twice.} Higher supply
-      $\to$ faster division $\to$ lower pattern stability, seen as final
+\item \textbf{One lipid-supply result, measured twice.} Higher lipid
+      supply is associated with lower pattern stability, seen as final
       $S$ falling 0.823 $\to$ 0.644, and restated in thresholded form by
       Phase-D attainment (direction only). These are not two findings and
       certainly not three; the third measure was $\rho = +0.43$, which is
       withdrawn.
+
+      \emph{The mechanism is not identified.} An earlier draft of this
+      section wrote the result as ``higher supply $\to$ faster division
+      $\to$ lower stability,'' asserting mediation through division
+      rate. Our own Table~\ref{tab:simpson} refutes it: within every
+      lipid stratum, slower division goes with \emph{lower} stability
+      ($\rho = -0.60$ to $-0.75$), which is the opposite of what that
+      chain predicts. Attributing a between-condition association to a
+      plausible intermediate variable, in the presence of stratified
+      data contradicting it, is Defect 6 committed again --- and it
+      survived into a draft of the section titled ``What survives.''
+      What is supported is the association and its direction, nothing
+      about the path.
 \item \textbf{Extinction under forced fast division.} 32.4\,\%
       population extinction at the shortest imposed period, 8.4\,\% at
       the next, zero at periods $\geq 1600$.
