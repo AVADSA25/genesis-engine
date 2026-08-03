@@ -1,0 +1,41 @@
+SSRN 6593781 — text to paste at the TOP of the existing abstract field,
+above the current abstract. Do not delete the current abstract; the
+correction reads as a correction only if the original claim is still
+visible beneath it.
+
+────────────────────────────────────────────────────────────────────
+
+*** CORRECTION, 3 AUGUST 2026: THE CENTRAL RESULT OF THIS PAPER IS
+WITHDRAWN. ***
+
+The reported finding — that division regularity (Clock) preceded
+spatial organization (Map) in 1,845 of 1,845 runs, binomial
+p = 8.01e-146 — was produced by measurement artifacts in my own code,
+not by the dynamics it was attributed to. Eight defects are documented
+in the correction notice now prepended to the PDF, each sufficient on
+its own to produce the reported figure. The principal one: the phase
+detector latched the second predicate only if the first had already
+latched, so 100% was the only outcome the measurement could return.
+
+Corrected figure: measured without that gate, the ordering holds in
+approximately 1% of runs. The reverse ordering is also unestablished —
+this model cannot settle the question either way, and a follow-up
+experiment indicates the question is malformed as posed, because the
+two quantities become measurable on timescales that differ by more than
+two orders of magnitude.
+
+The paper text below is left unaltered and is retained deliberately:
+its data and code are the evidence for the correction. Found by
+re-analysis of my own published code and data; the repository was
+public throughout and the decisive evidence was in the paper's own data
+files from the day of posting.
+
+Full audit and all raw outputs: https://github.com/AVADSA25/genesis-engine
+(directory paper/v6_supplement/). A companion methods paper, "The
+Detector Was the Result: Eight Measurement Artifacts, and a Question
+That Cannot Be Asked This Way", documents the audit in full, including
+the errors made while performing it.
+
+────────────────────────────────────────────────────────────────────
+
+[the existing abstract continues below unchanged]
