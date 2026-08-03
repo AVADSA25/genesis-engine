@@ -10,6 +10,4 @@ The paper text below is left unaltered and is retained deliberately: its data an
 
 Full audit and all raw outputs: https://github.com/AVADSA25/genesis-engine (directory paper/v6_supplement/). A companion methods paper, "The Detector Was the Result: Eight Measurement Artifacts, and a Question That Cannot Be Asked This Way", documents the audit in full, including the errors made while performing it.
 
----
-
 ORIGINAL ABSTRACT (AS POSTED, APRIL 2026):
