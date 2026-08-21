@@ -1,207 +1,203 @@
 # Genesis Engine — HANDOVER (3 Aug 2026)
 
-## STATE: audit complete, correction drafted, NOT POSTED
+## 1. WHAT THIS SESSION WAS FOR
 
-The one outstanding action is yours: post the correction to SSRN
-abstract 6593781. Everything else is done and pushed.
-
-`paper/v6_supplement/CORRECTION_NOTE_FINAL.md` — paste-ready.
-
----
-
-## THE HEADLINE
-
-The paper's central claim (Clock precedes Map, 1,845/1,845, 100%,
-p = 8.01e-146) is **withdrawn**. It was produced by measurement
-artifacts, not by the dynamics.
-
-Corrected figure: **Clock precedes Map in ~1% of runs.**
+Correct a published paper (SSRN 6593781) whose central result was produced by
+measurement artifacts, and publish the audit as a standalone methods paper.
+Goal: get both documents factually correct and publicly posted.
 
 ---
 
-## EIGHT DEFECTS IN THE PUBLISHED PAPER
+## 2. WHAT SHIPPED
 
-1. The detector could not fail — `detect_phase()` latched Map only after
-   Clock, so 100% was the only reachable output; both p-values test
-   unreachable nulls
-2. The reported delay IS the sampling interval — 50 @50-tick, exactly
-   1 @1-tick
-3. The Clock latch coincides with when CV first becomes computable
-   (partly physical — see below)
-4. The 243-tick mean is carried by 3 seeds (171, 294, 361 = 69% of mass)
-5. Denominator double-counted the shared OAT baseline: 1,845 -> 1,554
-6. Effect sizes invalid three ways — circular DV, an n=2 arm in 2D, and
-   a "combined" g = 6.34 that is just (9.41+3.27)/2
-7. Gate dependence systematic — 9 of 19 quantities directly, a 10th
-   indirectly; all four sec 5.3 results withdrawn or demoted
-8. rho(T_div,S) = +0.43 has the WRONG SIGN (-0.60 to -0.75 stratified)
+All committed and pushed to `github.com/AVADSA25/genesis-engine` (public),
+HEAD = `2f325af`. Working tree clean except one untracked scratch file
+(`paper/v6_supplement/SSRN_NEW_PAPER_ABSTRACT.txt` — superseded, safe to delete).
 
----
+**The new paper — WORKING, not yet published**
+- `paper/submission/detector_paper_farina_2026.tex` / `.pdf`
+- 27pp, compiles clean with `tectonic`, 25 refs, 2 figures.
+- Title: *The Detector Was the Result: Eight Measurement Artifacts, and a
+  Question That Cannot Be Asked This Way*
 
-## THE DEEPEST FINDING (this is the new paper)
+**Corrected SSRN upload — BUILT, upload state unverified**
+- `paper/submission/genesis_paper_v6_corrected.tex` / `.pdf` (32pp, 6.1 MB)
+- 5pp correction front matter + v5.3 included byte-identical via `pdfpages`,
+  all 27 original pages stamped "CENTRAL RESULT WITHDRAWN".
+- Mickael was uploading this to SSRN 6593781 when the session ended.
+  **I did not see it confirmed. Verify before assuming it is live.**
 
-The ordering question is **malformed as posed**.
+**Abstract text for SSRN 6593781**
+- `paper/v6_supplement/SSRN_FULL_ABSTRACT.txt` — correction + original
+  abstract already combined, 3,534 chars. This is the one to paste.
+- Two older variants exist (`SSRN_ABSTRACT_PREPEND.txt`, `SSRN_PASTE_THIS.txt`).
+  Ignore them; they caused confusion.
 
-Asking "which metric crosses first" compares a slow periodic process
-(division regularity, ~2,500 ticks, needs several periods to measure)
-against a fast field process (spatial correlation, ~40 ticks, measurable
-by ~150). A Clock metric built to have NO definedness floor came out
-defined at tick 6,000 — LATER than the one it replaced. The buffer
-sweep then showed it was not even a valid metric until ~9 periods
-(24,000 ticks), so the honest figure is 160x, not 40x.
+**Task S archive — WORKING, verified**
+- `experiment_v6_taskS_symmetric.py` → `results_v6/taskS_symmetric.csv`
+- Buffer sweep → `results_v6/taskS_buffer_sweep.csv` (4 arms × 40 seeds, 40k ticks)
+- Out-of-sample confirm → `results_v6/taskS_buffer_confirm.csv` (seeds 40–79)
+- `analysis_v6_taskS.py`, `analysis_v6_taskS_sweep.py` regenerate the results docs.
 
-Time-frequency constraint, not an implementation error. No simulation
-redesign removes it. **Defect 3 is only half ours.**
+**detector_audit.py — WORKING, verified this session**
+- `tools/detector_audit.py` → 31 findings, 16 critical (re-run and confirmed)
+- `tools/test_detector_audit.py` → 5/5 pass (re-run and confirmed)
 
-Consequence: ordering claims of this kind must be tested by
-INTERVENTION, not timing. That test was run (1,350 runs, imposed CV) and
-found no support for the theory.
+**Figures — WORKING**
+- `make_figures.py` → `paper/submission/figures/fig1_positive_control.pdf`,
+  `fig2_definedness.pdf`. Regenerate from the archived CSVs.
 
----
-
-## WHAT SURVIVES
-
-- sec 5.2 generalization argument (S measures persistence, not Turing)
-- Timescale anchor: 15.8-38.3 min, brackets E. coli, fixed a priori
-- ONE lipid-supply result, two measures: higher supply -> lower pattern
-  stability (S 0.823 -> 0.644). MECHANISM NOT IDENTIFIED — the
-  'via faster division' chain is refuted by the stratified data.
-- Extinction findings: 32.4% at T=200, zero at T>=1600; and 27.3% at
-  CV=0 vs <=4% at CV>=0.1 (lockstep division starves whole populations)
-  — BOTH confined to imposed periods <=800, which the model treats as
-  unphysical. Zero extinctions anywhere at T>=1600.
-- 1D dCV (-0.222) and Phase-E (+0.147) as ARITHMETIC ONLY
-- The measurement itself is validated: planting a known ordering,
-  rho = +0.96 recovery, Clock-first 2.6% -> 100%
+**Bibliography — WORKING, verified**
+- `paper/submission/refs.bib` (25 entries), `verify_refs.py` → 25/25 verified
+  against CrossRef by DOI.
 
 ---
 
-## MY OWN ERRORS, PUBLISHED TO THIS REPO AND LATER WITHDRAWN
+## 3. WHAT IS HALF-DONE
 
-SEVEN, in four classes. All are in the repo history and in sec 6.3 of
-the paper. (6) validating clock_r by eye from an insignificant
-correlation; (7) inventing a survivorship explanation refuted by the
-same grid. Both were found only by re-running with saved outputs.
+**A. SSRN 6593781 correction — status UNKNOWN**
+Mickael was on the revision form with the corrected PDF and the abstract text.
+Last thing seen: he had pasted the abstract and was told to set license CC-BY
+and hit Confirm Revision. **Not confirmed complete.**
+→ Check https://papers.ssrn.com/abstract=6593781. If uncorrected, redo:
+   upload `genesis_paper_v6_corrected.pdf`, paste `SSRN_FULL_ABSTRACT.txt`
+   over the whole abstract field, license CC-BY, Confirm Revision.
 
-WRONG REFERENCE POINT (x3) — confirmed a number reproduced without
-checking what it was a number OF:
- 1. Called the 2D back-reaction "the most interesting surviving number
-    in the project". It does not replicate (p = 0.427).
- 2. Corrected "roughly 4%" to 22.8% — correct arithmetic applied to a
-    result that should have been withdrawn entirely.
- 3. Put 1D dCV and Phase-E in the survivor column. Both anchored on
-    detector outputs; the causal readings are not licensed.
-
-WRONG SCOPE (x2) — a correct number generalised past its domain:
- 4. "~50% of cells barely divide in every condition, so
-    division-perturbation effects cannot be isolated in this model at
-    all." True of ONE forced-division design (44-56%); false of the
-    model under natural division (11-13%).
- 5. Claimed a timescale-separation mechanism from a comparison of an
-    unphysical condition against a physical one.
-
-Also: a pre-registered decision rule returned the RIGHT verdict for the
-WRONG reason (Task R), which is its own failure mode.
+**B. New paper SSRN submission — DRAFT SAVED AT STEP 5 OF 7**
+Draft is saved on Mickael's SSRN account (`hq.ssrn.com/submission.cfm`).
+Steps 1–5 complete and saved ("Save successful" confirmed):
+- 1 Upload: `detector_paper_farina_2026.pdf` attached, type Preprint
+- 2 Details: title correct; abstract MANUALLY REPLACED (SSRN's auto-extract
+  had pulled the running header into the text); date 03/08/2026; 7 keywords
+- 3 Authors: pre-filled, ORCID 0009-0005-9892-0466
+- 4 Classify: Computational Biology, Mathematical Biology, Biology &
+  Philosophy, Dynamical Systems, Computational Physics
+- 5 Integrity: declaration of interest + ethics statement written; funder blank
+**Stopped at:** the Terms & Conditions checkbox on step 5, deliberately
+unticked — it attests "I have reviewed each file that I am uploading", which
+is Mickael's statement, not mine to make.
+Remaining: tick T&C → step 6 license CC-BY → step 7 Review and Submit.
 
 ---
 
-## PUBLIC ARTIFACTS
+## 4. DECISIONS MADE
 
-- SSRN 6593781 — **STILL UNCORRECTED. This is the open action.**
-- Dashboard genesis-engine.lucyvpa.com — corrected, banner live,
-  KPIs marked WITHDRAWN, stale CSV disclosed. Static files served via
-  cloudflared -> localhost:3001 -> LaunchAgent. Edit files in
-  ~/genesis-engine/web/, no restart needed.
-- README — corrected, banner + claim-by-claim table
-- Repo — public throughout, all audit data and scripts pushed
-
----
-
-## TOOLS PRODUCED
-
-`tools/detector_audit.py` — 8 checks. 31 findings, 16 critical on this
-repo. Recovers SIX of the 8 defects (not all 8 — see final audit round
-below). C7 and C8 were added because C1-C6 missed my own errors.
-`tools/test_detector_audit.py` — negative controls, 5/5. Run these
-before trusting any audit count; C3 shipped unfalsifiable.
-
-`paper/v6_supplement/LAB_PROTOCOL.md` — 5 wet-lab experiments, one
-counterintuitive (synchrony fragility), one that can settle the ordering
-question a simulation structurally cannot.
+- **Correct SSRN in place, do not withdraw.** The original's text and data are
+  the evidence for the correction; removing it makes the defects unverifiable.
+- **Original included byte-identical, not rewritten.** Same reason.
+- **Stamp every page**, not just page 1 — loose pages circulate.
+- **Keep the old abstract below the correction.** A correction that deletes the
+  claim it corrects is a substitution, not a correction.
+- **New paper is standalone, not a replacement.** Different document, own SSRN entry.
+- **Paper affiliation → "Independent Researcher, Marbella, Spain"** (was AVA
+  Digital L.L.C.) — keeps business context out of research. NOTE: his SSRN
+  *account* still says AVA Digital, so PDF and SSRN metadata disagree. Unresolved.
+- **License CC-BY** for both papers — the paper argues publishing the code is
+  the only reason the defects were findable; a no-reuse license contradicts that.
+  → **Appended to `~/.claude/DECISIONS.md`.**
+- **Tool reports six of eight defects recovered**, not all eight — stated in
+  the paper rather than fixed by adding checks (scope creep, unasked).
+- **Preprint first, journal after.** Artificial Life remains the eventual target.
 
 ---
 
-## TASK S IS NOW ARCHIVED — AND IT CHANGED (2 Aug 2026)
+## 5. WHAT BROKE / WHAT I GOT WRONG
 
-Task S had been run inline; no script, no CSV. Re-run and archived as
-`experiment_v6_taskS_symmetric.py` -> `results_v6/taskS_symmetric.csv`
-(40 seeds x 2 parameterisations, 20k ticks), analysed by
-`analysis_v6_taskS.py`, which regenerates the results document.
+**The 22-error fact-check.** An adversarial pass over the revised draft checked
+196 numeric claims and confirmed 22 errors. Several were introduced by the
+revision that fixed the previous round. Do not assume the current draft is clean
+— every pass so far has found new errors, including errors created by fixes.
 
-Definedness result HOLDS and is the paper's spine:
-  S = 150, CV = 4450, clock_r = 6000. The floor-free metric arrives
-  last. Note 4450, not the 4825 previously in prose — definedness lies
-  on a 50-tick grid, so 4825 was a median over an even run count.
+**C3 could not fail.** `tools/detector_audit.py` computed
+`si = sample_interval or int(med)` with `sample_interval` always None, so the
+"sampling interval" was defined to be the median it was compared against. It
+fired on any integral median and could never pass — the paper's Defect 1
+reproduced inside the tool built to detect it. Fixed (GCD-inferred grid) and
+negative controls added. **Lesson: every check needs an input on which it must
+stay silent.**
 
-Validity result CHANGED, against the paper:
-  rho(clock_r, CV) = -0.2364 is exactly seeds 0-9 and was NEVER
-  significant (p = 0.511). At n = 40 it is -0.0822 (p = 0.614).
-  The long parameterisation fails the same validity check the short one
-  fails. The paper quotes the correlation without its p-value, which
-  presents an unvalidated metric as a working one.
+**A disclosure note blinded the tool.** The `#` staleness header on
+`web/results/summary.csv` made `csv.DictReader` read the comment as the header;
+every check's `if not rows or KEY not in rows[0]: continue` guard fired and two
+real findings vanished silently. Count moved 30→29 and read as improvement.
+Fixed via `read_csv`/`want_cols`.
 
-=> Do not describe clock_r as a metric that "works but arrives late."
-   It arrives late AND was never shown to measure regularity.
+**I invented a mechanism.** Added a survivorship explanation for the
+non-monotone S(CV) point, citing 27.3% extinction. That table excludes every
+period where those extinctions occur; in-window extinction is 0/675. Withdrawn,
+now §6.3 entry (7).
 
-OPEN: buffer sweep running (`V6_SWEEP=1`, 4 spans x 40 seeds, 40k
-ticks -> `results_v6/taskS_buffer_sweep.csv`) to establish whether
-validity is reachable at ANY buffer length. Sample count held at 120 so
-only span varies — a curve, not a search for a length that works.
+**Seven CrossRef searches returned the wrong record** — a book reprint for
+Turing 1952, preprints for Nosek/Marshall, a Faculty Opinions stub for Munafò,
+an unrelated 1954 paper for Gabor. All looked plausible in a result list.
+**Never accept CrossRef's first search hit; resolve by DOI.**
 
-## FINAL AUDIT ROUND (3 Aug 2026) -- 22 MORE ERRORS
+**The ~3,170-tick "natural period" was an artifact** of a hardcoded 50,000-tick
+divisor applied to 40,000-tick runs. The earlier "different configurations"
+reconciliation was itself invented. Both figures are ~2,540.
 
-An adversarial fact-check of the revised draft checked 196 numeric
-claims and confirmed 22 errors; 6 alleged ones were dismissed on
-verification. Several were introduced by the revision that fixed the
-previous round. All 22 applied; paper recompiles at 27pp.
+**Dead ends / failures:**
+- Browser `file_upload` returns an error but the file may still attach. It did.
+  Screenshot before believing the error.
+- `~/Downloads` and the session scratchpad are both rejected by `file_upload`.
+- SSRN date fields strip typed slashes → "Invalid date". Use `form_input`.
+- SSRN's rich-text abstract counts markup, not visible chars. Hard-wrapped text
+  pasted from a file blows the 5,000 limit. Paste unwrapped, `Cmd+Shift+V`.
+- SSRN auto-extracts the abstract from the PDF and pulls in the running header.
+  Always replace it manually.
+- `hq.ssrn.com/submissions/CreateNewSubmission.cfm` is a 404. Use
+  `hq.ssrn.com/submission.cfm`.
+- I told Mickael the upload was blocked when it wasn't. Verify before reporting
+  a blocker.
 
-Two worth remembering:
+---
 
-C3 COULD NOT FAIL. `si = sample_interval or int(med)` with
-sample_interval always None => the grid was defined to be the median,
-and the second clause is true by the definition of a median. The check
-fired on any integral median and could never pass. That is Defect 1
-(a predicate that cannot emit a violation) reproduced inside the tool
-built to detect it. Fixed: grid now inferred as the GCD of delays,
-median must equal one step with a majority exactly on it. Negative
-controls added in tools/test_detector_audit.py -- 5/5. RUN THEM.
+## 6. OPEN THREADS
 
-INVENTED MECHANISM. The revision explained the non-monotone S(CV) point
-by survivorship, citing 27.3% extinction at CV=0. That table excludes
-every period where those extinctions happen; in its own window
-extinction is 0/675. Entry (7) of section 6.3 now.
+- **SSRN 6593781 revision** — submitted by Mickael, outcome unseen. SSRN
+  revisions also go through a moderation queue before going live.
+- **New paper SSRN draft** — saved at step 5, auto-saving, no expiry known.
+- **No running jobs, no crons, no PRs, no deploys.** All experiments finished.
+- `genesis-engine.lucyvpa.com` dashboard is live and untouched this session.
 
-Also: the tool recovers SIX of eight defects, not all eight -- no check
-reads results/ablations/ (both data checks glob "summary.csv", the file
-is "ablation_summary.csv"), and C8 finds Defect 8's class on a different
-quantity. If you want 8/8, add a check that reads the ablation summary
-and recomputes rho(T_div,S) over the lipid strata. NOT done here: adding
-checks changes the tool's described identity and was not asked for.
+---
 
-The ~3,170 "natural period" was an artifact of a hardcoded 50,000-tick
-divisor applied to 40,000-tick runs. The earlier "different
-configurations" reconciliation was itself invented; both figures are
-~2,540.
+## 7. NEEDS MICKAEL
 
-## NEXT STEPS
+- Confirm the 6593781 correction actually went live (and cleared moderation).
+- Finish the new paper submission: tick T&C, license CC-BY, Confirm.
+- Decide whether to align his SSRN *account* affiliation (AVA Digital L.L.C.)
+  with the paper's (Independent Researcher, Marbella, Spain).
+- Decide whether to submit to *Artificial Life* (MIT Press) and when.
 
-1. Post the SSRN correction (yours) -- CORRECTION_NOTE_FINAL.md is now
-   consistent with the revised paper (sweep result, ~2,540 period,
-   extinction scope). It was NOT consistent before this round.
-2. Write the methods paper from `taskE_rewrite_scaffold.md` — target
-   Artificial Life (MIT Press)
-3. Consider promoting detector_audit.py to a CODEC skill (caveat:
-   C1/C2/C5 are regex-based, a floor not a ceiling)
-4. Sibling papers: Vesicle CV=0.06 and Engine g=4.07 are UNVERIFIABLE —
-   no source exists on any machine. Two greps each would settle them if
-   the code resurfaces.
+---
+
+## 8. FIRST THREE MOVES
+
+1. **Verify SSRN 6593781.** Open https://papers.ssrn.com/abstract=6593781.
+   Does the abstract lead with the correction? Does the PDF's page 1 show the
+   red "CORRECTION AND PARTIAL WITHDRAWAL" banner, and page 6 the withdrawal
+   stamp? If not, redo the revision (files in §3A).
+2. **Finish the new paper draft.** `hq.ssrn.com/submission.cfm` → resume →
+   step 5 T&C → step 6 CC-BY → step 7 Submit. Everything else is filled.
+3. **Re-run the two verifiers before trusting any number:**
+   `python3 tools/detector_audit.py` (expect 31 findings / 16 critical) and
+   `python3 tools/test_detector_audit.py` (expect 5/5).
+   Then read §5 before touching the paper — the error rate across revisions
+   has not converged to zero.
+
+---
+
+## KEY FACTS (so the next session does not re-derive them)
+
+- Withdrawn: Clock precedes Map in 1,845/1,845, p = 8.01e-146. It was the gate.
+- Corrected: ~1% of runs. Reverse also unestablished.
+- Definedness: S at ~150 ticks, CV at ~4,450, valid clock_r at ~24,000 (160×).
+- A valid regularity metric needs ~9 division periods of buffer
+  (rho = -0.4565, p = 0.0031 on held-out seeds 40–79).
+- Distinct runs 1,554 not 1,845: 97 baseline runs counted 4× = 291 redundant.
+- Nine of 19 reported quantities were detector-dependent, a tenth indirectly.
+- Both extinction survivors occur ONLY at imposed periods <=800, which the
+  model treats as unphysical. Zero extinctions at T>=1600.
+- Two companion papers (Vesicle CV=0.06, Engine g=4.07) are UNVERIFIABLE —
+  no source survives on any machine.
