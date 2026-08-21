@@ -1,4 +1,4 @@
-# Genesis Engine — HANDOVER (3 Aug 2026)
+# Genesis Engine — HANDOVER (3 Aug 2026; status verified 21 Aug 2026)
 
 ## 1. WHAT THIS SESSION WAS FOR
 
@@ -55,28 +55,19 @@ HEAD = `2f325af`. Working tree clean except one untracked scratch file
 
 ## 3. WHAT IS HALF-DONE
 
-**A. SSRN 6593781 correction — status UNKNOWN**
-Mickael was on the revision form with the corrected PDF and the abstract text.
-Last thing seen: he had pasted the abstract and was told to set license CC-BY
-and hit Confirm Revision. **Not confirmed complete.**
-→ Check https://papers.ssrn.com/abstract=6593781. If uncorrected, redo:
-   upload `genesis_paper_v6_corrected.pdf`, paste `SSRN_FULL_ABSTRACT.txt`
-   over the whole abstract field, license CC-BY, Confirm Revision.
+**Nothing. Both papers are published.** Verified live on SSRN 21 Aug 2026.
 
-**B. New paper SSRN submission — DRAFT SAVED AT STEP 5 OF 7**
-Draft is saved on Mickael's SSRN account (`hq.ssrn.com/submission.cfm`).
-Steps 1–5 complete and saved ("Save successful" confirmed):
-- 1 Upload: `detector_paper_farina_2026.pdf` attached, type Preprint
-- 2 Details: title correct; abstract MANUALLY REPLACED (SSRN's auto-extract
-  had pulled the running header into the text); date 03/08/2026; 7 keywords
-- 3 Authors: pre-filled, ORCID 0009-0005-9892-0466
-- 4 Classify: Computational Biology, Mathematical Biology, Biology &
-  Philosophy, Dynamical Systems, Computational Physics
-- 5 Integrity: declaration of interest + ethics statement written; funder blank
-**Stopped at:** the Terms & Conditions checkbox on step 5, deliberately
-unticked — it attests "I have reviewed each file that I am uploading", which
-is Mickael's statement, not mine to make.
-Remaining: tick T&C → step 6 license CC-BY → step 7 Review and Submit.
+**A. SSRN 6593781 correction — LIVE.** Last revised 3 Aug 2026, 32 pages
+(= `genesis_paper_v6_corrected.pdf`), licence CC-BY 4.0. The public abstract
+opens with `*** CORRECTION, 3 AUGUST 2026: THE CENTRAL RESULT OF THIS PAPER IS
+WITHDRAWN. ***` and retains the original abstract beneath it. Cleared
+moderation.
+
+**B. New paper — LIVE.** https://papers.ssrn.com/abstract=7224298, posted
+10 Aug 2026, 26 pages, CC-BY 4.0, declaration of interest and ethics statement
+both displayed. Mickael finished steps 5–7 himself after the session ended.
+(The handover previously said 27pp; the PDF is 26 — SSRN and the local file
+agree, md5 `5b3366d7…`.)
 
 ---
 
@@ -154,37 +145,47 @@ reconciliation was itself invented. Both figures are ~2,540.
 
 ## 6. OPEN THREADS
 
-- **SSRN 6593781 revision** — submitted by Mickael, outcome unseen. SSRN
-  revisions also go through a moderation queue before going live.
-- **New paper SSRN draft** — saved at step 5, auto-saving, no expiry known.
+- **Title metadata bug on 7224298 (open).** SSRN stored the title with raw HTML
+  in it — the page `<title>` reads literally
+  `<div> The Detector was the Result: </div> <div> Eight Measurement Artifacts,
+  and a Question that cannot be asked this Way </div>`. Two problems: the `div`
+  tags, and the casing ("was", "cannot be asked this Way") against the paper's
+  own `The Detector Was the Result: Eight Measurement Artifacts, and a Question
+  That Cannot Be Asked This Way`. Cause: the title field was pasted as rich
+  text. Fix = a metadata-only revision on the title field, paste unformatted.
+- **7224298 shows "0 References".** SSRN did not extract the 25-entry
+  bibliography (6593781 shows 46). Cosmetic — no reference linking or
+  citation-graph presence. Probably not worth a revision on its own; fold it
+  into the title fix if a revision happens.
 - **No running jobs, no crons, no PRs, no deploys.** All experiments finished.
-- `genesis-engine.lucyvpa.com` dashboard is live and untouched this session.
+- `genesis-engine.lucyvpa.com` dashboard is live and untouched.
 
 ---
 
 ## 7. NEEDS MICKAEL
 
-- Confirm the 6593781 correction actually went live (and cleared moderation).
-- Finish the new paper submission: tick T&C, license CC-BY, Confirm.
+- Decide whether to file a metadata revision on 7224298 to fix the HTML-in-title
+  bug (see §6). It is a public-record change, so it needs his go-ahead.
 - Decide whether to align his SSRN *account* affiliation (AVA Digital L.L.C.)
-  with the paper's (Independent Researcher, Marbella, Spain).
+  with the paper's (Independent Researcher, Marbella, Spain). Both currently
+  show on the author page.
 - Decide whether to submit to *Artificial Life* (MIT Press) and when.
 
 ---
 
 ## 8. FIRST THREE MOVES
 
-1. **Verify SSRN 6593781.** Open https://papers.ssrn.com/abstract=6593781.
-   Does the abstract lead with the correction? Does the PDF's page 1 show the
-   red "CORRECTION AND PARTIAL WITHDRAWAL" banner, and page 6 the withdrawal
-   stamp? If not, redo the revision (files in §3A).
-2. **Finish the new paper draft.** `hq.ssrn.com/submission.cfm` → resume →
-   step 5 T&C → step 6 CC-BY → step 7 Submit. Everything else is filled.
-3. **Re-run the two verifiers before trusting any number:**
-   `python3 tools/detector_audit.py` (expect 31 findings / 16 critical) and
-   `python3 tools/test_detector_audit.py` (expect 5/5).
-   Then read §5 before touching the paper — the error rate across revisions
-   has not converged to zero.
+1. **Read §5 before touching either paper.** The error rate across revisions
+   never converged to zero. Both papers are now public; any change is a
+   revision to the public record.
+2. **Re-run the three verifiers before trusting any number.** Last run
+   21 Aug 2026, all green:
+   `python3 tools/detector_audit.py` → 31 findings / 16 critical
+   `python3 tools/test_detector_audit.py` → 5 passed, 0 failed
+   `cd paper/submission && python3 verify_refs.py` → 25/25 against CrossRef.
+   (`verify_refs.py` lives in `paper/submission/`, not `tools/`.)
+3. **If a revision is authorised**, it is metadata only — the title field on
+   7224298, pasted with Cmd+Shift+V. Do not re-upload the PDF.
 
 ---
 
